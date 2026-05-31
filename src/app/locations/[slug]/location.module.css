@@ -1,0 +1,83 @@
+.locationPage {
+  min-height: 100vh;
+  padding-top: 80px;
+}
+
+.locationHero {
+  height: 60vh;
+  min-height: 400px;
+  background-image: url('https://images.unsplash.com/photo-1596395819057-e37f55a8516d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1328&q=80');
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heroOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(10,10,10,0.5), rgba(10,10,10,0.8));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 5%;
+}
+
+.heroOverlay h1 {
+  font-size: 4rem;
+  color: var(--accent-gold);
+  margin-bottom: 1rem;
+}
+
+.heroOverlay p {
+  font-size: 1.25rem;
+  color: white;
+  max-width: 600px;
+}
+
+.statsCard {
+  background: var(--bg-card);
+  padding: 2.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--accent-gold);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.statsCard h3 {
+  font-family: var(--font-sans);
+  color: var(--accent-gold);
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.statsCard ul {
+  list-style: none;
+}
+
+.statsCard li {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  justify-content: space-between;
+}
+
+.statsCard li:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .heroOverlay h1 {
+    font-size: 2.5rem;
+  }
+}
