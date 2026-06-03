@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import styles from "./Navbar.module.css";
 
@@ -24,7 +25,8 @@ export default function Navbar() {
     <header className={`${styles.navbar} ${scrolled ? styles.scrolled : ""}`}>
       <div className={styles.navContainer}>
         <Link href="/" className={styles.logo}>
-          <span className={styles.logoGold}>ATHARVA</span> REAL INFRA
+          <Image src="/logo.jpg" alt="Atharva Real Infra Logo" width={50} height={50} className={styles.logoImage} />
+          <span style={{ marginLeft: '10px' }}><span className={styles.logoGold}>ATHARVA</span> REAL INFRA</span>
         </Link>
         
         <nav className={`${styles.navLinks} ${mobileMenuOpen ? styles.mobileOpen : ""}`}>
@@ -38,6 +40,8 @@ export default function Navbar() {
               <Link href="/locations/vengurla" onClick={() => setMobileMenuOpen(false)}>Vengurla</Link>
               <Link href="/locations/kudal" onClick={() => setMobileMenuOpen(false)}>Kudal</Link>
               <Link href="/locations/kankavli" onClick={() => setMobileMenuOpen(false)}>Kankavli</Link>
+              <Link href="/locations/malvan" onClick={() => setMobileMenuOpen(false)}>Malvan</Link>
+              <Link href="/locations/vaibhavwadi" onClick={() => setMobileMenuOpen(false)}>Vaibhavwadi</Link>
             </div>
           </div>
           <Link href="/about" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
@@ -45,7 +49,7 @@ export default function Navbar() {
         </nav>
 
         <div className={styles.navActions}>
-          <a href="tel:+910000000000" className={styles.callBtn}>Call Us</a>
+          <a href={`tel:${process.env.NEXT_PUBLIC_CONTACT_PHONE || '+919876543210'}`} className={styles.callBtn}>Call Us</a>
           <button 
             className={styles.mobileToggle} 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

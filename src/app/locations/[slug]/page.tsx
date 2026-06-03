@@ -1,13 +1,28 @@
 import Link from "next/link";
 import homeStyles from "../../page.module.css";
 import styles from "./location.module.css";
+import { getServiceSupabase } from "@/lib/supabase";
+import PropertyCard from "@/components/PropertyCard";
 
-export default function LocationPage({ params }: { params: { slug: string } }) {
-  const locationName = params.slug.charAt(0).toUpperCase() + params.slug.slice(1);
+export const revalidate = 0;
+
+export default async function LocationPage({ params }: { params: Promise<{ slug: string }> }) {
+  const resolvedParams = await params;
+  const locationName = resolvedParams.slug.charAt(0).toUpperCase() + resolvedParams.slug.slice(1);
+  const supabase = getServiceSupabase();
   
+  const { data: properties } = await supabase
+    .from('properties')
+    .select('*')
+    .ilike('taluka', locationName)
+    .eq('status', 'Available');
+
   return (
     <div className={styles.locationPage}>
-      <div className={styles.locationHero}>
+      <div 
+        className={styles.locationHero}
+        style={{ backgroundImage: `url('/${resolvedParams.slug.toLowerCase()}.png')` }}
+      >
         <div className={styles.heroOverlay}>
           <h1>{locationName}</h1>
           <p>The emerging hub of luxury real estate in Sindhudurg</p>
@@ -38,25 +53,22 @@ export default function LocationPage({ params }: { params: { slug: string } }) {
 
         <h2 className="section-title">Available Properties in {locationName}</h2>
         <div className="grid-3">
-          {[1, 2, 3].map((item) => (
-            <div key={item} className={homeStyles.propertyCard}>
-              <div className={homeStyles.propertyImage}>
-                <div className={homeStyles.badge}>Exclusive</div>
-              </div>
-              <div className={homeStyles.propertyInfo}>
-                <h3 className={homeStyles.propertyTitle}>Premium Plot {item}</h3>
-                <p className={homeStyles.propertyLocation}>📍 {locationName}, Sindhudurg</p>
-                <div className={homeStyles.propertyFeatures}>
-                  <span>{item * 2} Acres</span>
-                  <span>Clear Title</span>
-                </div>
-                <div className={homeStyles.propertyFooter}>
-                  <div className={homeStyles.price}>₹ {item + 1}.5 Cr</div>
-                  <Link href={`/properties/${item}`} className="btn-outline" style={{padding: '8px 16px', fontSize: '0.8rem'}}>View Details</Link>
-                </div>
-              </div>
-            </div>
-          ))}
+          {properties && properties.length > 0 ? properties.map((prop: any, idx: number) => (
+            <PropertyCard key={prop.id} prop={prop} index={idx} />
+          )) : (
+            <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-secondary)' }}>
+              No properties currently available in {locationName}. Please check back later or contact us for off-market listings.
+            </p>
+          )}
+        </div>
+
+        {/* Contact CTA */}
+        <div style={{ marginTop: '5rem', padding: '4rem 2rem', background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid rgba(212,175,55,0.2)', textAlign: 'center' }}>
+          <h2 style={{ marginBottom: '1rem' }}>Interested in {locationName}?</h2>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
+            Our advisors have exclusive off-market properties and deep insights into the {locationName} region. Contact us to find your perfect investment.
+          </p>
+          <Link href="/contact" className="btn-primary" style={{ display: 'inline-block' }}>Consult an Advisor</Link>
         </div>
       </div>
     </div>

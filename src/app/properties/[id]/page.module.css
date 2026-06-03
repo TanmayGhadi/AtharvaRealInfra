@@ -4,10 +4,11 @@
 }
 
 .gallerySection {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  height: 60vh;
-  min-height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 1rem;
+  width: 100%;
 }
 
 .mainImage {
@@ -15,12 +16,20 @@
   background-size: cover;
   background-position: center;
   position: relative;
+  width: 100%;
+  max-width: 1000px;
+  height: 550px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 15px 50px rgba(0,0,0,0.6);
+  border: 1px solid rgba(212,175,55,0.3);
 }
 
 .thumbnailGrid {
   display: grid;
   grid-template-rows: repeat(2, 1fr);
   grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
 }
 
 .thumbnail {
@@ -30,6 +39,8 @@
   position: relative;
   cursor: pointer;
   transition: opacity 0.3s ease;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .thumbnail:hover {

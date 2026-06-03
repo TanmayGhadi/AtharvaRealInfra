@@ -1,16 +1,81 @@
 import Link from "next/link";
 import styles from "./page.module.css";
 import homeStyles from "../page.module.css"; // Reuse some styles
+import { getServiceSupabase } from "@/lib/supabase";
+import PropertyFilters from "@/components/PropertyFilters";
+import SortSelect from "@/components/SortSelect";
+import PropertyCard from "@/components/PropertyCard";
+import { Suspense } from "react";
 
-export default function Properties() {
-  const properties = [
-    { id: 1, title: "Luxury Farmhouse Estate", location: "Dodamarg", area: "5 Acres", price: "₹ 2.5 Cr", type: "Farmhouse" },
-    { id: 2, title: "Premium Agricultural Land", location: "Sawantwadi", area: "10 Acres", price: "₹ 1.8 Cr", type: "Agricultural" },
-    { id: 3, title: "Hilltop Sea View Plot", location: "Vengurla", area: "2 Acres", price: "₹ 3.2 Cr", type: "Investment" },
-    { id: 4, title: "Riverside Development Land", location: "Kudal", area: "8 Acres", price: "₹ 4.5 Cr", type: "Development" },
-    { id: 5, title: "Mango Orchard", location: "Kankavli", area: "15 Acres", price: "₹ 5.0 Cr", type: "Agricultural" },
-    { id: 6, title: "Highway Touch Plot", location: "Dodamarg", area: "1 Acre", price: "₹ 1.2 Cr", type: "Commercial" },
-  ];
+export const revalidate = 0; // Dynamic route for filters
+
+export default async function Properties({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const resolvedSearchParams = await searchParams;
+  const supabase = getServiceSupabase();
+  let query = supabase.from('properties').select('*');
+
+  // Filters
+  if (resolvedSearchParams.district && resolvedSearchParams.district !== '') {
+    const districts = Array.isArray(resolvedSearchParams.district) ? resolvedSearchParams.district : [resolvedSearchParams.district];
+    const orQuery = districts.filter(Boolean).map(d => `district.ilike.%${d.trim()}%`).join(',');
+    if (orQuery) query = query.or(orQuery);
+  }
+  if (resolvedSearchParams.taluka && resolvedSearchParams.taluka !== '') {
+    const talukas = Array.isArray(resolvedSearchParams.taluka) ? resolvedSearchParams.taluka : [resolvedSearchParams.taluka];
+    const orQuery = talukas.filter(Boolean).map(t => `taluka.ilike.%${t.trim()}%`).join(',');
+    if (orQuery) query = query.or(orQuery);
+  }
+  if (resolvedSearchParams.village && resolvedSearchParams.village !== '') {
+    const villages = Array.isArray(resolvedSearchParams.village) ? resolvedSearchParams.village : [resolvedSearchParams.village];
+    const orQuery = villages.filter(Boolean).map(v => `village.ilike.%${v.trim()}%`).join(',');
+    if (orQuery) query = query.or(orQuery);
+  }
+  if (resolvedSearchParams.type) {
+    const types = Array.isArray(resolvedSearchParams.type) ? resolvedSearchParams.type : [resolvedSearchParams.type];
+    query = query.in('property_type', types);
+  }
+  if (resolvedSearchParams.status && resolvedSearchParams.status !== '') {
+    const statuses = Array.isArray(resolvedSearchParams.status) ? resolvedSearchParams.status : [resolvedSearchParams.status];
+    query = query.in('status', statuses);
+  } else if (!resolvedSearchParams.status && resolvedSearchParams.status !== '') {
+    // Default to available if nothing specified (if status parameter is completely absent)
+    query = query.eq('status', 'Available');
+  }
+
+  if (resolvedSearchParams.featured === 'true') query = query.eq('is_featured', true);
+  if (resolvedSearchParams.near_airport === 'true') query = query.eq('near_airport', true);
+  if (resolvedSearchParams.near_nh66 === 'true') query = query.eq('near_highway', true);
+
+  // Budget filter
+  if (resolvedSearchParams.budget) {
+    const b = resolvedSearchParams.budget;
+    if (b === 'under-1cr') query = query.lt('price_numeric', 10000000);
+    else if (b === '1cr-3cr') query = query.gte('price_numeric', 10000000).lte('price_numeric', 30000000);
+    else if (b === '3cr-5cr') query = query.gte('price_numeric', 30000000).lte('price_numeric', 50000000);
+    else if (b === 'above-5cr') query = query.gt('price_numeric', 50000000);
+  }
+
+  // Area filter (1 Acre = ~4047 sqm)
+  if (resolvedSearchParams.area) {
+    const a = resolvedSearchParams.area;
+    if (a === 'under-1') query = query.lt('area_sqm', 4047);
+    else if (a === '1-5') query = query.gte('area_sqm', 4047).lte('area_sqm', 20235);
+    else if (a === '5-10') query = query.gte('area_sqm', 20235).lte('area_sqm', 40469);
+    else if (a === 'above-10') query = query.gt('area_sqm', 40469);
+  }
+
+  // Sorting
+  const sort = resolvedSearchParams.sort || 'newest';
+  if (sort === 'price-low') query = query.order('price_numeric', { ascending: true });
+  else if (sort === 'price-high') query = query.order('price_numeric', { ascending: false });
+  else query = query.order('created_at', { ascending: false });
+
+  const { data: properties, error } = await query;
+  const displayProperties = properties || [];
 
   return (
     <div className={styles.propertiesPage}>
@@ -23,68 +88,28 @@ export default function Properties() {
 
       <div className={`section-container ${styles.layout}`}>
         {/* Sidebar Filters */}
-        <aside className={styles.sidebar}>
-          <div className={styles.filterGroup}>
-            <h4>Location</h4>
-            <label><input type="checkbox" /> Dodamarg</label>
-            <label><input type="checkbox" /> Sawantwadi</label>
-            <label><input type="checkbox" /> Vengurla</label>
-            <label><input type="checkbox" /> Kudal</label>
-            <label><input type="checkbox" /> Kankavli</label>
-          </div>
-          
-          <div className={styles.filterGroup}>
-            <h4>Property Type</h4>
-            <label><input type="checkbox" /> Agricultural Land</label>
-            <label><input type="checkbox" /> Farmhouse Plot</label>
-            <label><input type="checkbox" /> Commercial Land</label>
-            <label><input type="checkbox" /> Investment Plot</label>
-          </div>
-
-          <div className={styles.filterGroup}>
-            <h4>Budget</h4>
-            <label><input type="radio" name="budget" /> Any</label>
-            <label><input type="radio" name="budget" /> Under ₹1 Cr</label>
-            <label><input type="radio" name="budget" /> ₹1 Cr - ₹3 Cr</label>
-            <label><input type="radio" name="budget" /> ₹3 Cr - ₹5 Cr</label>
-            <label><input type="radio" name="budget" /> ₹5 Cr +</label>
-          </div>
-          
-          <button className="btn-primary" style={{width: '100%', marginTop: '1rem'}}>Apply Filters</button>
-        </aside>
+        <Suspense fallback={<aside className={styles.sidebar}>Loading filters...</aside>}>
+          <PropertyFilters />
+        </Suspense>
 
         {/* Property Grid */}
         <div className={styles.mainContent}>
           <div className={styles.toolbar}>
-            <p>Showing {properties.length} properties</p>
-            <select className={styles.sortSelect}>
-              <option>Sort by: Recommended</option>
-              <option>Price: Low to High</option>
-              <option>Price: High to Low</option>
-              <option>Newest Arrivals</option>
-            </select>
+            <p>Showing {displayProperties.length} properties</p>
+            <Suspense fallback={<div>...</div>}>
+              <SortSelect />
+            </Suspense>
           </div>
 
           <div className="grid-2">
-            {properties.map((prop) => (
-              <div key={prop.id} className={homeStyles.propertyCard}>
-                <div className={homeStyles.propertyImage}>
-                  <div className={homeStyles.badge}>{prop.type}</div>
-                </div>
-                <div className={homeStyles.propertyInfo}>
-                  <h3 className={homeStyles.propertyTitle}>{prop.title}</h3>
-                  <p className={homeStyles.propertyLocation}>📍 {prop.location}, Sindhudurg</p>
-                  <div className={homeStyles.propertyFeatures}>
-                    <span>{prop.area}</span>
-                    <span>Clear Title</span>
-                  </div>
-                  <div className={homeStyles.propertyFooter}>
-                    <div className={homeStyles.price}>{prop.price}</div>
-                    <Link href={`/properties/${prop.id}`} className="btn-outline" style={{padding: '8px 16px', fontSize: '0.8rem'}}>View Details</Link>
-                  </div>
-                </div>
-              </div>
+            {displayProperties.map((prop: any, idx: number) => (
+              <PropertyCard key={prop.id} prop={prop} index={idx} styleClass="" />
             ))}
+            {displayProperties.length === 0 && (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '3rem 0', color: 'var(--text-secondary)' }}>
+                No properties match your current filters.
+              </div>
+            )}
           </div>
         </div>
       </div>

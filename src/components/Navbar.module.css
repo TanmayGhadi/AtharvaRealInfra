@@ -30,6 +30,16 @@
   font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.logoImage {
+  height: 44px;
+  width: 44px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid var(--accent-gold);
 }
 
 .logoGold {
@@ -141,6 +151,7 @@
   }
 
   .dropdownContent {
+    display: flex;
     position: static;
     transform: none;
     background: transparent;

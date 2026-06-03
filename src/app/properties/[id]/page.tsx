@@ -1,60 +1,65 @@
 import Link from "next/link";
 import styles from "./page.module.css";
 import Image from "next/image";
+import { getServiceSupabase } from "@/lib/supabase";
+import InquiryForm from "@/components/InquiryForm";
+import MediaGallery from "@/components/MediaGallery";
 
-export default function PropertyDetails({ params }: { params: { id: string } }) {
-  // In a real app, fetch data based on params.id
+export default async function PropertyDetails({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const supabase = getServiceSupabase();
+  const { data: prop, error } = await supabase
+    .from('properties')
+    .select('*')
+    .eq('id', resolvedParams.id)
+    .single();
+
+  const { data: settings } = await supabase.from('settings').select('*').single();
+
+  if (error || !prop) {
+    return <div className="section-container text-center" style={{paddingTop: '150px'}}><h2>Property not found</h2></div>;
+  }
   
+  let parsedVideos = [];
+  try { parsedVideos = typeof prop.videos === 'string' ? JSON.parse(prop.videos) : prop.videos; } catch(e) {}
+  if (!Array.isArray(parsedVideos)) parsedVideos = [];
+  
+  let parsedDocuments = [];
+  try { parsedDocuments = typeof prop.documents === 'string' ? JSON.parse(prop.documents) : prop.documents; } catch(e) {}
+  if (!Array.isArray(parsedDocuments)) parsedDocuments = [];
   return (
     <div className={styles.propertyDetailsPage}>
       {/* Gallery Section */}
-      <section className={styles.gallerySection}>
-        <div className={styles.mainImage}>
-          {/* Main property image */}
-        </div>
-        <div className={styles.thumbnailGrid}>
-          <div className={styles.thumbnail}></div>
-          <div className={styles.thumbnail}></div>
-          <div className={styles.thumbnail}></div>
-          <div className={styles.thumbnail}>
-            <div className={styles.moreOverlay}>+12 Photos</div>
-          </div>
-        </div>
-      </section>
+      <MediaGallery images={prop.images} />
 
       <div className="section-container">
         <div className={styles.layout}>
           {/* Main Content */}
           <div className={styles.content}>
             <div className={styles.header}>
-              <div className={styles.badge}>Premium Farmhouse</div>
-              <h1>Luxury Farmhouse Estate</h1>
-              <p className={styles.location}>📍 Dodamarg, Sindhudurg, Maharashtra</p>
+              <div className={styles.badge}>{prop.property_type || 'Premium'}</div>
+              <h1>{prop.title}</h1>
+              <p className={styles.location}>📍 {prop.village}, {prop.taluka}, {prop.district}, Maharashtra</p>
               
               <div className={styles.keyStats}>
                 <div className={styles.statBox}>
                   <span>Price</span>
-                  <h4>₹ 2.5 Cr</h4>
+                  <h4>{prop.price_display}</h4>
                 </div>
                 <div className={styles.statBox}>
                   <span>Area</span>
-                  <h4>5 Acres</h4>
+                  <h4>{prop.area_display}</h4>
                 </div>
                 <div className={styles.statBox}>
                   <span>Status</span>
-                  <h4 className="text-gold">Available</h4>
+                  <h4 className="text-gold">{prop.status}</h4>
                 </div>
               </div>
             </div>
 
             <div className={styles.section}>
               <h2>Property Overview</h2>
-              <p>
-                Experience the epitome of luxury living amidst nature. This spectacular 5-acre estate offers breathtaking panoramic views of the Sahyadri mountains. Perfectly suited for a grand farmhouse or an eco-resort development. The land features rich red soil, abundant water supply, and hundreds of mature cashew and mango trees.
-              </p>
-              <p>
-                Located just 20 minutes from the new Mopa International Airport, this property promises not just a luxurious retreat, but a highly lucrative investment opportunity with excellent appreciation potential.
-              </p>
+              <p style={{ whiteSpace: 'pre-line' }}>{prop.description}</p>
             </div>
 
             <div className={styles.section}>
@@ -62,20 +67,66 @@ export default function PropertyDetails({ params }: { params: { id: string } }) 
               <ul className={styles.featuresList}>
                 <li>Clear marketable title with 7/12 extract</li>
                 <li>Demarcated boundaries with fencing</li>
-                <li>24/7 water availability (Borewell & River proximity)</li>
-                <li>Electricity connection readily available</li>
-                <li>Tar road access till the property</li>
-                <li>High ROI expected due to Mopa Airport proximity</li>
+                <li>24/7 water availability</li>
+                {prop.near_airport && <li>Near Mopa Airport</li>}
+                {prop.near_highway && <li>Near NH-66 Highway</li>}
               </ul>
             </div>
 
             <div className={styles.section}>
               <h2>Location Map</h2>
-              <div className={styles.mapContainer}>
-                {/* Embed Google Map here */}
-                <div className={styles.mapPlaceholder}>Interactive Map View</div>
+              <div className={styles.mapContainer} style={{ height: '400px', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-color)', position: 'relative' }}>
+                {prop.latitude && prop.longitude ? (
+                  <>
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      frameBorder="0"
+                      style={{ border: 0 }}
+                      src={`https://maps.google.com/maps?q=${prop.latitude},${prop.longitude}&z=14&output=embed`}
+                      allowFullScreen
+                    ></iframe>
+                    <div style={{ position: 'absolute', bottom: '20px', left: '20px', zIndex: 10 }}>
+                      <a 
+                        href={`https://www.google.com/maps/dir/?api=1&destination=${prop.latitude},${prop.longitude}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="btn-primary"
+                        style={{ padding: '10px 20px', fontSize: '0.9rem', boxShadow: '0 4px 10px rgba(0,0,0,0.5)' }}
+                      >
+                        Get Directions
+                      </a>
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)' }}>
+                    Map coordinates not provided for this property.
+                  </div>
+                )}
               </div>
             </div>
+
+            {parsedVideos && parsedVideos.length > 0 && (
+              <div className={styles.section}>
+                <h2>Video Tour</h2>
+                <div style={{ display: 'grid', gap: '1rem' }}>
+                  {parsedVideos.map((vid: string, i: number) => (
+                    <video key={i} controls style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--border-color)' }} src={vid} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {parsedDocuments && parsedDocuments.length > 0 && (
+              <div className={styles.section}>
+                <h2>Property Documents</h2>
+                <ul className={styles.featuresList}>
+                  {parsedDocuments.map((doc: string, i: number) => (
+                    <li key={i}><a href={doc} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-gold)' }}>View Document {i + 1} 📄</a></li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -85,20 +136,23 @@ export default function PropertyDetails({ params }: { params: { id: string } }) 
               <p>Contact our luxury real estate experts for a private viewing or more details.</p>
               
               <div className={styles.actions}>
-                <a href="tel:+919876543210" className="btn-primary" style={{display: 'block', textAlign: 'center'}}>Call Now</a>
-                <a href="https://wa.me/919876543210" className="btn-outline" style={{display: 'block', textAlign: 'center'}}>WhatsApp</a>
-                <button className="btn-outline" style={{width: '100%'}}>Download Brochure</button>
+                <a href={`tel:${settings?.phone_number || '+917843097793'}`} className="btn-primary" style={{display: 'block', textAlign: 'center'}}>Call Now</a>
+                <a href={`https://wa.me/${settings?.whatsapp_number || '917843097793'}?text=${encodeURIComponent(`Hello, I am interested in property: ${prop.title} (ID: ${prop.id}). Please provide more details. URL: https://atharvarealinfra.com/properties/${prop.id}`)}`} target="_blank" rel="noopener noreferrer" className="btn-outline" style={{display: 'block', textAlign: 'center'}}>WhatsApp</a>
+                <a href={`mailto:${settings?.email_address || 'ds200784@atharvarealinfra.com'}`} className="btn-outline" style={{display: 'block', textAlign: 'center'}}>Email Us</a>
               </div>
 
               <div className={styles.divider}>or</div>
 
-              <form className={styles.inquiryForm}>
-                <input type="text" placeholder="Your Name" required />
-                <input type="email" placeholder="Email Address" required />
-                <input type="tel" placeholder="Phone Number" required />
-                <textarea placeholder="I am interested in this property..." rows={4}></textarea>
-                <button type="submit" className="btn-primary" style={{width: '100%'}}>Submit Inquiry</button>
-              </form>
+              <InquiryForm propertyId={prop.id} propertyTitle={prop.title} />
+
+              <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--border-color)', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                <p style={{ marginBottom: '1rem' }}><strong>Office Address:</strong><br/>{settings?.office_address || 'Samartha Residency, Janavali, Kankavli near NH 66'}</p>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  {settings?.instagram_url ? <a href={settings.instagram_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-gold)' }}>Instagram</a> : <a href="https://instagram.com/atharvarealinfar" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-gold)' }}>Instagram</a>}
+                  {settings?.facebook_url ? <a href={settings.facebook_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-gold)' }}>Facebook</a> : <a href="https://www.facebook.com/profile.php?id=61590608871679" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-gold)' }}>Facebook</a>}
+                  {settings?.youtube_url ? <a href={settings.youtube_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-gold)' }}>YouTube</a> : <a href="https://www.youtube.com/@AtharvaRealInfra" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-gold)' }}>YouTube</a>}
+                </div>
+              </div>
             </div>
           </aside>
         </div>
