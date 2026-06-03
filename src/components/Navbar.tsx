@@ -49,7 +49,6 @@ export default function Navbar() {
         </nav>
 
         <div className={styles.navActions}>
-          <a href={`tel:${process.env.NEXT_PUBLIC_CONTACT_PHONE || '+918668649942'}`} className={styles.callBtn}>8668649942</a>
           <a href="tel:+917843097793" className={styles.callBtn}>7843097793</a>
           <button 
             className={styles.mobileToggle} 
