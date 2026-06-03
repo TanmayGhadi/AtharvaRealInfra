@@ -594,11 +594,19 @@
     padding: 1.5rem 1rem;
   }
   .filterRow {
-    flex-direction: column !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
     gap: 1rem;
   }
-  .searchInput, .checkboxGroup, .searchBtn {
-    flex: 1 1 100%;
+  .searchInput {
+    width: 100%;
+  }
+  .checkboxGroup {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+  .searchBtn {
+    grid-column: 1 / -1;
     width: 100%;
   }
   .searchWidget button[type="submit"] {
@@ -628,4 +636,13 @@
 .locationChip:hover {
   border-color: var(--accent-gold);
   color: var(--accent-gold);
+}
+
+@media (max-width: 480px) {
+  .filterRow {
+    grid-template-columns: 1fr !important;
+  }
+  .searchBtn {
+    grid-column: 1 / -1;
+  }
 }

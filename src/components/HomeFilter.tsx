@@ -8,7 +8,6 @@ import { supabase } from '@/lib/supabase';
 export default function HomeFilter() {
   const [district, setDistrict] = useState('');
   const [taluka, setTaluka] = useState('');
-  const [village, setVillage] = useState('');
   const [locationHierarchy, setLocationHierarchy] = useState<Record<string, Record<string, string[]>>>({});
 
   useEffect(() => {
@@ -39,27 +38,16 @@ export default function HomeFilter() {
   const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setDistrict(e.target.value);
     setTaluka('');
-    setVillage('');
   };
 
   const handleTalukaChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setTaluka(e.target.value);
-    setVillage('');
   };
 
   const allTalukas = Array.from(new Set(Object.values(locationHierarchy).flatMap(d => Object.keys(d))));
   const availableTalukas = district 
     ? Object.keys(locationHierarchy[district] || {}) 
     : allTalukas;
-
-  const allVillages = Array.from(new Set(Object.values(locationHierarchy).flatMap(d => Object.values(d).flat())));
-  const availableVillages = district && taluka 
-    ? locationHierarchy[district][taluka] || [] 
-    : taluka 
-      ? allVillages.filter(v => Object.values(locationHierarchy).some(d => d[taluka]?.includes(v)))
-      : district 
-        ? Array.from(new Set(Object.values(locationHierarchy[district] || {}).flat()))
-        : allVillages;
 
   return (
     <form action="/properties" method="GET" className={`${styles.searchWidget} glass-panel animate-fade-in-3`}>
@@ -89,15 +77,6 @@ export default function HomeFilter() {
         </div>
 
         {/* Village */}
-        <div className={styles.searchInput}>
-          <label>Village</label>
-          <select name="village" value={village} onChange={(e) => setVillage(e.target.value)}>
-            <option value="">All Villages</option>
-            {availableVillages.map(v => (
-              <option key={v} value={v}>{v}</option>
-            ))}
-          </select>
-        </div>
 
         {/* Property Type */}
         <div className={styles.searchInput}>

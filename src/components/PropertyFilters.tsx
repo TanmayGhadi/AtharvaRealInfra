@@ -38,7 +38,6 @@ export default function PropertyFilters() {
   const [filters, setFilters] = useState({
     district: searchParams.getAll('district'),
     taluka: searchParams.getAll('taluka'),
-    village: searchParams.getAll('village'),
     type: searchParams.getAll('type'),
     status: searchParams.getAll('status'),
     budget: searchParams.get('budget') || 'any',
@@ -65,7 +64,6 @@ export default function PropertyFilters() {
     
     filters.district.forEach(v => params.append('district', v));
     filters.taluka.forEach(v => params.append('taluka', v));
-    filters.village.forEach(v => params.append('village', v));
     filters.type.forEach(v => params.append('type', v));
     filters.status.forEach(v => params.append('status', v));
     
@@ -101,18 +99,6 @@ export default function PropertyFilters() {
         ))}
       </div>
       
-      <div className={styles.filterGroup}>
-        <h4>Village</h4>
-        {Object.values(locationHierarchy).flatMap(t => Object.values(t)).flat().filter((value, index, self) => self.indexOf(value) === index).map(v => (
-          <label key={v}>
-            <input type="checkbox" checked={filters.village.includes(v)} onChange={() => handleChange('village', v)} /> {v}
-          </label>
-        ))}
-        {Object.keys(locationHierarchy).length === 0 && (
-          <p style={{fontSize: '0.8rem', color: 'var(--text-secondary)'}}>Loading villages...</p>
-        )}
-      </div>
-
       <div className={styles.filterGroup}>
         <h4>Property Type</h4>
         {['Agricultural', 'Farmhouse', 'Commercial', 'Investment'].map(type => (
