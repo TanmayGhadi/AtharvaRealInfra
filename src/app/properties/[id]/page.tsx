@@ -4,6 +4,7 @@ import Image from "next/image";
 import { getServiceSupabase } from "@/lib/supabase";
 import InquiryForm from "@/components/InquiryForm";
 import MediaGallery from "@/components/MediaGallery";
+import PropertyCard from "@/components/PropertyCard";
 
 export default async function PropertyDetails({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -18,6 +19,27 @@ export default async function PropertyDetails({ params }: { params: Promise<{ id
 
   if (error || !prop) {
     return <div className="section-container text-center" style={{paddingTop: '150px'}}><h2>Property not found</h2></div>;
+  }
+  
+  // Fetch similar properties
+  const { data: similarProps } = await supabase
+    .from('properties')
+    .select('*')
+    .eq('district', prop.district)
+    .neq('id', prop.id)
+    .limit(4);
+
+  let suggestedProperties = similarProps || [];
+  if (suggestedProperties.length < 4) {
+    const { data: otherProps } = await supabase
+      .from('properties')
+      .select('*')
+      .neq('id', prop.id)
+      .neq('district', prop.district)
+      .limit(4 - suggestedProperties.length);
+    if (otherProps) {
+      suggestedProperties = [...suggestedProperties, ...otherProps];
+    }
   }
   
   let parsedVideos = [];
@@ -157,6 +179,18 @@ export default async function PropertyDetails({ params }: { params: Promise<{ id
           </aside>
         </div>
       </div>
+
+      {/* Suggested Properties */}
+      {suggestedProperties.length > 0 && (
+        <div className="section-container" style={{ marginTop: '4rem', marginBottom: '4rem' }}>
+          <h2 style={{ marginBottom: '2rem', textAlign: 'center' }}>Suggested Properties</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
+            {suggestedProperties.map((p, idx) => (
+              <PropertyCard key={p.id} prop={p} index={idx} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
