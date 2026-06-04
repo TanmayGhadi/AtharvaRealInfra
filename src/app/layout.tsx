@@ -7,8 +7,11 @@ import ScrollReveal from "@/components/ScrollReveal";
 import FloatingContacts from "@/components/FloatingContacts";
 
 export const metadata: Metadata = {
-  title: "Atharva Real Infra | Premium Real Estate & Land Opportunities",
-  description: "Luxury real estate, premium agricultural land, and investment opportunities in Sindhudurg (Dodamarg, Sawantwadi, Vengurla, Kudal, Kankavli).",
+  title: {
+    template: "%s | Atharva Real Infra",
+    default: "Premium Agricultural Land Investment | Atharva Real Infra",
+  },
+  description: "Invest in premium agricultural and NA plots near Sindhudurg, Mopa Airport and Goa. Trusted land investment opportunities.",
 };
 
 export default function RootLayout({
