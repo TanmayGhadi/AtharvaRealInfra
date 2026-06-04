@@ -3,6 +3,13 @@ import styles from "./page.module.css";
 import { getServiceSupabase } from "@/lib/supabase";
 import PropertyCard from "@/components/PropertyCard";
 import HomeFilter from "@/components/HomeFilter"; // We will create this
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Premium Agricultural Land Investment | Atharva Real Infra",
+  description: "Invest in premium agricultural and NA plots near Sindhudurg, Mopa Airport and Goa. Trusted land investment opportunities in Maharashtra.",
+  alternates: { canonical: 'https://www.atharvarealinfra.com' }
+};
 
 export const revalidate = 60;
 
@@ -36,7 +43,7 @@ export default async function Home() {
             Invest in Land.<br/>Secure Your Future.
           </h1>
           <p className="animate-fade-in-1">
-            Premium Agricultural Lands Across Sindhudurg. Experience luxury real estate consultancy tailored for discerning investors.
+            Premium agricultural land and NA plots near Goa and Mopa Airport. Experience luxury real estate investment tailored for discerning investors in Sindhudurg.
           </p>
           <div className={`${styles.heroActions} animate-fade-in-2`}>
             <Link href="/properties" className={`btn-primary ${styles.heroCta}`}>Explore Properties</Link>
@@ -178,6 +185,8 @@ export default async function Home() {
               key={loc.name}
               className={`${styles.locationCard} reveal stagger-${i + 1}`}
               style={{ backgroundImage: `url(${loc.img})` }}
+              role="img"
+              aria-label={`Real estate and land investment opportunities in ${loc.name}`}
             >
               <div className={styles.locationOverlay}>
                 <h3>{loc.name}</h3>

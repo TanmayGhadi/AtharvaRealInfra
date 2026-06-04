@@ -2,6 +2,12 @@ import Link from "next/link";
 import Image from "next/image";
 import styles from "./page.module.css";
 import { getServiceSupabase } from "@/lib/supabase";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About Us",
+  description: "Learn about Atharva Real Infra, your premier partner for premium land investment, agricultural plots, and real estate in Sindhudurg and near Mopa Airport.",
+};
 
 export const revalidate = 60;
 

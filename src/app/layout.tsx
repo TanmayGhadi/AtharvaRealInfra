@@ -7,11 +7,29 @@ import ScrollReveal from "@/components/ScrollReveal";
 import FloatingContacts from "@/components/FloatingContacts";
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.atharvarealinfra.com'),
   title: {
     template: "%s | Atharva Real Infra",
     default: "Premium Agricultural Land Investment | Atharva Real Infra",
   },
-  description: "Invest in premium agricultural and NA plots near Sindhudurg, Mopa Airport and Goa. Trusted land investment opportunities.",
+  description: "Invest in premium agricultural and NA plots near Sindhudurg, Mopa Airport and Goa. Trusted land investment opportunities in Maharashtra.",
+  keywords: ["Agricultural land near Goa", "Land investment near Goa", "Mopa Airport investment plots", "Agricultural plots in Sindhudurg", "NA plots near Goa", "Farm land for sale in Konkan", "Real estate investment in Sindhudurg", "Premium land investment Maharashtra", "Property near Mopa Airport"],
+  openGraph: {
+    type: 'website',
+    locale: 'en_IN',
+    url: 'https://www.atharvarealinfra.com',
+    title: 'Premium Agricultural Land Investment | Atharva Real Infra',
+    description: 'Invest in premium agricultural and NA plots near Sindhudurg, Mopa Airport and Goa. Trusted land investment opportunities.',
+    siteName: 'Atharva Real Infra',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Premium Agricultural Land Investment | Atharva Real Infra',
+    description: 'Invest in premium agricultural and NA plots near Sindhudurg, Mopa Airport and Goa. Trusted land investment opportunities.',
+  },
+  alternates: {
+    canonical: 'https://www.atharvarealinfra.com',
+  },
 };
 
 export default function RootLayout({
@@ -24,6 +42,27 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "RealEstateAgent",
+              "name": "Atharva Real Infra",
+              "url": "https://www.atharvarealinfra.com",
+              "logo": "https://www.atharvarealinfra.com/logo.jpg",
+              "description": "Premium agricultural and NA plots near Sindhudurg, Mopa Airport, and Goa.",
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Sindhudurg",
+                "addressRegion": "Maharashtra",
+                "addressCountry": "IN"
+              },
+              "telephone": "+917843097793",
+              "email": "info@atharvarealinfra.com"
+            })
+          }}
+        />
       </head>
       <body suppressHydrationWarning>
         <Navbar />

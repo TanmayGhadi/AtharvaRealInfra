@@ -6,6 +6,12 @@ import PropertyFilters from "@/components/PropertyFilters";
 import SortSelect from "@/components/SortSelect";
 import PropertyCard from "@/components/PropertyCard";
 import { Suspense } from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Property Listings | Agricultural Land & NA Plots",
+  description: "Browse our exclusive real estate listings. Find farm land for sale, NA plots, and premium land investments near Goa and Mopa Airport.",
+};
 
 export const revalidate = 0; // Dynamic route for filters
 

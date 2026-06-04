@@ -4,7 +4,18 @@ import styles from "./location.module.css";
 import { getServiceSupabase } from "@/lib/supabase";
 import PropertyCard from "@/components/PropertyCard";
 
+import type { Metadata } from "next";
+
 export const revalidate = 0;
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const locationName = resolvedParams.slug.charAt(0).toUpperCase() + resolvedParams.slug.slice(1);
+  return {
+    title: `Land & Property Investment in ${locationName}`,
+    description: `Explore premium agricultural plots, farm land for sale, and NA plots in ${locationName}. Secure your real estate investment near Goa and Mopa Airport with Atharva Real Infra.`,
+  };
+}
 
 export default async function LocationPage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;

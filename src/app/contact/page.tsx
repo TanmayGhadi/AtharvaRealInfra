@@ -1,6 +1,12 @@
 import InquiryForm from "@/components/InquiryForm";
 import styles from "../properties/[id]/page.module.css"; // Reuse styling
 import homeStyles from "../page.module.css";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contact Us",
+  description: "Get in touch with Atharva Real Infra. Schedule a consultation for land investment near Goa, Mopa Airport, and agricultural plots in Sindhudurg.",
+};
 
 export default function ContactPage() {
   return (

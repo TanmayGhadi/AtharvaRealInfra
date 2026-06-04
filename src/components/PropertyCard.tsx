@@ -69,6 +69,8 @@ export default function PropertyCard({ prop, index = 0, styleClass = '' }: { pro
             {displayImages.map((img: string, i: number) => (
               <div 
                 key={i} 
+                role="img"
+                aria-label={`Property image ${i + 1}: ${prop.title} - ${prop.property_type} in ${prop.village}, ${prop.taluka}`}
                 style={{ 
                   width: `${100 / displayImages.length}%`, 
                   height: '100%', 
