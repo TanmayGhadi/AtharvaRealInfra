@@ -7,8 +7,7 @@ import Link from 'next/link';
 
 import { uploadMediaServer } from '../../uploadAction';
 
-export default function EditPropertyPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params);
+export default function EditPropertyPage({ params }: { params: any }) {
   const [loading, setLoading] = useState(true);
   const [property, setProperty] = useState<any>(null);
   
@@ -46,7 +45,13 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
 
   useEffect(() => {
     async function fetchProperty() {
-      const data = await getProperty(resolvedParams.id);
+      let currentId = params.id;
+      if (!currentId && params instanceof Promise) {
+         const p = await params;
+         currentId = p.id;
+      }
+      
+      const data = await getProperty(currentId);
       if (data) {
         setProperty(data);
         setDistrict(data.district || '');
@@ -88,7 +93,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
       setLoading(false);
     }
     fetchProperty();
-  }, [resolvedParams.id]);
+  }, [params]);
 
   useEffect(() => {
     async function fetchLocations() {
@@ -257,7 +262,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   if (loading) return <div style={{ padding: '2rem', color: 'white' }}>Loading property details...</div>;
   if (!property) return <div style={{ padding: '2rem', color: '#f87171' }}>Property not found.</div>;
 
-  const updatePropertyWithId = updateProperty.bind(null, resolvedParams.id);
+  const updatePropertyWithId = updateProperty.bind(null, property.id);
 
   return (
     <div>
