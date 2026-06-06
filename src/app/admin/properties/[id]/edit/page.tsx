@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { updateProperty, getProperty, getLocations } from '../../actions';
 import styles from '../../../admin.module.css';
 import Link from 'next/link';
@@ -10,11 +10,15 @@ import { uploadMediaServer } from '../../uploadAction';
 export default function EditPropertyPage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(true);
   const [property, setProperty] = useState<any>(null);
+  
+  // Media State
   const [images, setImages] = useState<string[]>([]);
+  const [thumbnailImage, setThumbnailImage] = useState<string | null>(null);
   const [videos, setVideos] = useState<string[]>([]);
   const [documents, setDocuments] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
 
+  // Property Details State
   const [district, setDistrict] = useState('');
   const [taluka, setTaluka] = useState('');
   const [village, setVillage] = useState('');
@@ -24,6 +28,20 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
   const [areaDisplay, setAreaDisplay] = useState('');
   const [pricePerAcre, setPricePerAcre] = useState('');
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  // SEO & Extra Fields State
+  const [slug, setSlug] = useState('');
+  const [seoTitle, setSeoTitle] = useState('');
+  const [seoDescription, setSeoDescription] = useState('');
+  const [seoKeywords, setSeoKeywords] = useState('');
+  
+  // Amenities
+  const [amenities, setAmenities] = useState<string[]>([]);
+  const [amenityInput, setAmenityInput] = useState('');
+
+  // Hidden File inputs for replace
+  const replaceFileRef = useRef<HTMLInputElement | null>(null);
+  const [replaceIndex, setReplaceIndex] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchProperty() {
@@ -36,9 +54,17 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
         setPriceDisplay(data.price_display || '');
         setPriceNumeric(data.price_numeric ? data.price_numeric.toString() : '');
         setAreaDisplay(data.area_display || '');
+        
         setImages(data.images || []);
+        setThumbnailImage(data.thumbnail_image || (data.images && data.images[0]) || null);
         setVideos(data.videos || []);
         setDocuments(data.documents || []);
+        
+        setSlug(data.slug || '');
+        setSeoTitle(data.seo_title || '');
+        setSeoDescription(data.seo_description || '');
+        setSeoKeywords(data.seo_keywords || '');
+        setAmenities(data.amenities || []);
         
         if (data.price_numeric && data.area_display) {
           const numMatch = data.area_display.replace(/,/g, '').match(/[\d.]+/);
@@ -144,11 +170,11 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
   const availableTalukas = district ? Object.keys(locationHierarchy[district] || {}) : [];
   const availableVillages = district && taluka ? locationHierarchy[district][taluka] || [] : [];
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video' | 'document') => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video' | 'document', replaceIdx: number | null = null) => {
     if (!e.target.files || e.target.files.length === 0) return;
     
     setUploading(true);
-    const newFiles = type === 'image' ? [...images] : type === 'video' ? [...videos] : [...documents];
+    let newFiles = type === 'image' ? [...images] : type === 'video' ? [...videos] : [...documents];
     
     for (let i = 0; i < e.target.files.length; i++) {
       const file = e.target.files[i];
@@ -159,7 +185,17 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
       try {
         const result: any = await uploadMediaServer(formData);
         if (result && result.url) {
-          newFiles.push(result.url);
+          if (replaceIdx !== null) {
+            newFiles[replaceIdx] = result.url;
+            if (thumbnailImage === images[replaceIdx]) {
+              setThumbnailImage(result.url);
+            }
+          } else {
+            newFiles.push(result.url);
+            if (type === 'image' && newFiles.length === 1 && !thumbnailImage) {
+              setThumbnailImage(result.url);
+            }
+          }
         }
       } catch (err) {
         console.error(`Cloudinary ${type} upload failed:`, err);
@@ -170,7 +206,51 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
     if (type === 'image') setImages(newFiles);
     else if (type === 'video') setVideos(newFiles);
     else setDocuments(newFiles);
+    
     setUploading(false);
+    if (replaceIdx !== null && replaceFileRef.current) {
+      replaceFileRef.current.value = '';
+    }
+    setReplaceIndex(null);
+  };
+
+  // Image Management
+  const moveImage = (index: number, direction: 'up' | 'down') => {
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === images.length - 1) return;
+    
+    const newImages = [...images];
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+    [newImages[index], newImages[swapIndex]] = [newImages[swapIndex], newImages[index]];
+    setImages(newImages);
+  };
+
+  const deleteImage = (index: number) => {
+    const isThumb = images[index] === thumbnailImage;
+    const newImages = images.filter((_, i) => i !== index);
+    setImages(newImages);
+    if (isThumb) {
+      setThumbnailImage(newImages.length > 0 ? newImages[0] : null);
+    }
+  };
+
+  const triggerReplaceImage = (index: number) => {
+    setReplaceIndex(index);
+    if (replaceFileRef.current) {
+      replaceFileRef.current.click();
+    }
+  };
+
+  // Amenities Management
+  const addAmenity = () => {
+    if (amenityInput.trim()) {
+      setAmenities([...amenities, amenityInput.trim()]);
+      setAmenityInput('');
+    }
+  };
+
+  const removeAmenity = (index: number) => {
+    setAmenities(amenities.filter((_, i) => i !== index));
   };
 
   if (loading) return <div style={{ padding: '2rem', color: 'white' }}>Loading property details...</div>;
@@ -200,10 +280,14 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
       <div className={styles.card}>
         <form action={updatePropertyWithId} style={{ display: 'grid', gap: '1.5rem' }}>
           <input type="hidden" name="images" value={JSON.stringify(images)} />
+          <input type="hidden" name="thumbnail_image" value={thumbnailImage || ''} />
+          <input type="hidden" name="amenities" value={JSON.stringify(amenities)} />
+          <input type="hidden" name="videos" value={JSON.stringify(videos)} />
+          <input type="hidden" name="documents" value={JSON.stringify(documents)} />
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Property Title</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Property Title / Name</label>
               <input type="text" name="title" defaultValue={property.title} required style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} />
             </div>
             <div>
@@ -276,75 +360,131 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Latitude (Optional for Map)</label>
-              <input type="text" name="latitude" defaultValue={property.latitude} style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} />
+          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(212,175,55,0.2)', paddingTop: '1.5rem' }}>
+            <h3 style={{ marginBottom: '1rem' }}>Amenities</h3>
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+              <input 
+                type="text" 
+                value={amenityInput} 
+                onChange={(e) => setAmenityInput(e.target.value)} 
+                placeholder="e.g. Electricity, Water Supply..." 
+                style={{ flex: 1, padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} 
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addAmenity(); } }}
+              />
+              <button type="button" onClick={addAmenity} className="btn-primary" style={{ padding: '0 1.5rem' }}>Add</button>
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Longitude (Optional for Map)</label>
-              <input type="text" name="longitude" defaultValue={property.longitude} style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} />
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {amenities.map((am, i) => (
+                <div key={i} style={{ background: 'rgba(212,175,55,0.1)', border: '1px solid var(--accent-gold)', padding: '0.4rem 0.8rem', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span>{am}</span>
+                  <button type="button" onClick={() => removeAmenity(i)} style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', padding: '0 4px' }}>&times;</button>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(212,175,55,0.2)', paddingTop: '1.5rem' }}>
+            <h3 style={{ marginBottom: '1rem' }}>SEO Settings</h3>
+            <div style={{ display: 'grid', gap: '1.5rem' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>SEO Friendly Slug (URL)</label>
+                <input type="text" name="slug" value={slug} onChange={e => setSlug(e.target.value)} placeholder="e.g. premium-agricultural-land-kankavli" style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>SEO Title</label>
+                <input type="text" name="seo_title" value={seoTitle} onChange={e => setSeoTitle(e.target.value)} placeholder="e.g. Premium Agricultural Land in Kankavli | Atharva Real Infra" style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>SEO Description</label>
+                <textarea name="seo_description" value={seoDescription} onChange={e => setSeoDescription(e.target.value)} rows={2} style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }}></textarea>
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>SEO Keywords</label>
+                <input type="text" name="seo_keywords" value={seoKeywords} onChange={e => setSeoKeywords(e.target.value)} placeholder="e.g. property in maharashtra, agricultural land near goa" style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} />
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(212,175,55,0.2)', paddingTop: '1.5rem' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', cursor: 'pointer', marginBottom: '1rem' }}>
               <input type="checkbox" name="is_featured" defaultChecked={property.is_featured} />
-              Feature this property on the homepage
+              <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>Feature this property on the homepage</span>
             </label>
           </div>
 
-          <input type="hidden" name="videos" value={JSON.stringify(videos)} />
-          <input type="hidden" name="documents" value={JSON.stringify(documents)} />
           <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(212,175,55,0.2)', paddingTop: '1.5rem' }}>
-            <h3 style={{ marginBottom: '1rem' }}>Property Images</h3>
-            <div style={{ marginBottom: '1rem' }}>
+            <h3 style={{ marginBottom: '1rem' }}>Image Management</h3>
+            <div style={{ marginBottom: '1.5rem' }}>
               <input type="file" multiple accept="image/*" onChange={(e) => handleFileUpload(e, 'image')} disabled={uploading} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }} />
               {uploading && <span style={{ marginLeft: '1rem', color: 'var(--accent-gold)' }}>Uploading to Cloudinary...</span>}
             </div>
             
+            {/* Hidden input for replace */}
+            <input type="file" ref={replaceFileRef} accept="image/*" onChange={(e) => replaceIndex !== null && handleFileUpload(e, 'image', replaceIndex)} style={{ display: 'none' }} />
+
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               {images.map((img, i) => (
-                <div 
-                  key={i} 
-                  onClick={() => setPreviewImage(img)}
-                  style={{ width: '100px', height: '100px', backgroundImage: `url(${img})`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '8px', border: '2px solid var(--accent-gold)', cursor: 'pointer', transition: 'transform 0.2s' }}
-                  onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
-                  onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
-                ></div>
+                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'rgba(255,255,255,0.05)', padding: '0.5rem', borderRadius: '8px', border: thumbnailImage === img ? '2px solid var(--accent-gold)' : '2px solid transparent' }}>
+                  <div 
+                    onClick={() => setPreviewImage(img)}
+                    style={{ width: '150px', height: '150px', backgroundImage: `url(${img})`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', cursor: 'pointer', position: 'relative' }}
+                  >
+                    {thumbnailImage === img && <div style={{ position: 'absolute', top: '5px', left: '5px', background: 'var(--accent-gold)', color: '#000', fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>THUMBNAIL</div>}
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.25rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <button type="button" onClick={() => moveImage(i, 'up')} disabled={i === 0} style={{ padding: '4px 8px', fontSize: '0.8rem', background: 'var(--bg-primary)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', cursor: i === 0 ? 'not-allowed' : 'pointer' }}>↑</button>
+                    <button type="button" onClick={() => moveImage(i, 'down')} disabled={i === images.length - 1} style={{ padding: '4px 8px', fontSize: '0.8rem', background: 'var(--bg-primary)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', cursor: i === images.length - 1 ? 'not-allowed' : 'pointer' }}>↓</button>
+                    <button type="button" onClick={() => setThumbnailImage(img)} style={{ padding: '4px 8px', fontSize: '0.8rem', background: 'var(--bg-primary)', color: 'var(--accent-gold)', border: '1px solid rgba(212,175,55,0.5)', borderRadius: '4px', cursor: 'pointer' }}>Set Thumb</button>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.25rem', justifyContent: 'center' }}>
+                    <button type="button" onClick={() => triggerReplaceImage(i)} style={{ padding: '4px 8px', fontSize: '0.8rem', background: 'var(--bg-primary)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', cursor: 'pointer', flex: 1 }}>Replace</button>
+                    <button type="button" onClick={() => deleteImage(i)} style={{ padding: '4px 8px', fontSize: '0.8rem', background: '#f87171', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', flex: 1 }}>Delete</button>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
 
-          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(212,175,55,0.2)', paddingTop: '1.5rem' }}>
-            <h3 style={{ marginBottom: '1rem' }}>Property Videos</h3>
-            <div style={{ marginBottom: '1rem' }}>
-              <input type="file" multiple accept="video/*" onChange={(e) => handleFileUpload(e, 'video')} disabled={uploading} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }} />
+          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(212,175,55,0.2)', paddingTop: '1.5rem', display: 'flex', gap: '2rem' }}>
+            <div style={{ flex: 1 }}>
+              <h3 style={{ marginBottom: '1rem' }}>Property Videos</h3>
+              <div style={{ marginBottom: '1rem' }}>
+                <input type="file" multiple accept="video/*" onChange={(e) => handleFileUpload(e, 'video')} disabled={uploading} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }} />
+              </div>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                {videos.map((vid, i) => (
+                  <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <video src={vid} style={{ width: '150px', height: '100px', objectFit: 'cover', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)' }} controls />
+                    <button type="button" onClick={() => setVideos(videos.filter((_, idx) => idx !== i))} style={{ padding: '4px', background: '#f87171', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Delete Video</button>
+                  </div>
+                ))}
+              </div>
             </div>
-            
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              {videos.map((vid, i) => (
-                <video key={i} src={vid} style={{ width: '150px', height: '100px', objectFit: 'cover', borderRadius: '8px', border: '2px solid var(--accent-gold)' }} controls />
-              ))}
+
+            <div style={{ flex: 1 }}>
+              <h3 style={{ marginBottom: '1rem' }}>Property Documents</h3>
+              <div style={{ marginBottom: '1rem' }}>
+                <input type="file" multiple accept=".pdf,.doc,.docx" onChange={(e) => handleFileUpload(e, 'document')} disabled={uploading} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }} />
+              </div>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', flexDirection: 'column' }}>
+                {documents.map((doc, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(255,255,255,0.05)', padding: '0.5rem', borderRadius: '4px' }}>
+                    <a href={doc} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-gold)' }}>Document {i + 1}</a>
+                    <button type="button" onClick={() => setDocuments(documents.filter((_, idx) => idx !== i))} style={{ padding: '4px 8px', background: '#f87171', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Delete</button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(212,175,55,0.2)', paddingTop: '1.5rem' }}>
-            <h3 style={{ marginBottom: '1rem' }}>Property Documents (PDFs, etc)</h3>
-            <div style={{ marginBottom: '1rem' }}>
-              <input type="file" multiple accept=".pdf,.doc,.docx" onChange={(e) => handleFileUpload(e, 'document')} disabled={uploading} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }} />
-            </div>
-            
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              {documents.map((doc, i) => (
-                <a key={i} href={doc} target="_blank" rel="noopener noreferrer" style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', color: 'var(--accent-gold)' }}>Document {i + 1}</a>
-              ))}
-            </div>
+          <div style={{ marginTop: '2rem', borderTop: '1px solid rgba(212,175,55,0.5)', paddingTop: '2rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+            <Link href="/admin/properties" className="btn-outline" style={{ padding: '12px 24px' }}>
+              Cancel
+            </Link>
+            <button type="submit" className="btn-primary" style={{ padding: '12px 32px', fontSize: '1.1rem' }} disabled={uploading}>
+              {uploading ? 'Uploading...' : 'Save Changes'}
+            </button>
           </div>
-
-          <button type="submit" className="btn-primary" style={{ marginTop: '1rem' }} disabled={uploading}>
-            Save Changes
-          </button>
         </form>
       </div>
     </div>

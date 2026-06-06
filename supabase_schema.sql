@@ -22,6 +22,12 @@ CREATE TABLE properties (
     longitude NUMERIC(11, 8),
     near_airport BOOLEAN DEFAULT false,
     near_highway BOOLEAN DEFAULT false,
+    slug VARCHAR(255) UNIQUE,
+    seo_title VARCHAR(255),
+    seo_description TEXT,
+    seo_keywords TEXT,
+    thumbnail_image TEXT,
+    amenities JSONB DEFAULT '[]',
     images JSONB DEFAULT '[]', -- Array of Cloudinary URLs
     videos JSONB DEFAULT '[]',
     documents JSONB DEFAULT '[]',

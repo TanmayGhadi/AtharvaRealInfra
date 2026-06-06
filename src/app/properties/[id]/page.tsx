@@ -5,14 +5,73 @@ import { getServiceSupabase } from "@/lib/supabase";
 import InquiryForm from "@/components/InquiryForm";
 import MediaGallery from "@/components/MediaGallery";
 import PropertyCard from "@/components/PropertyCard";
+import { Metadata } from "next";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const supabase = getServiceSupabase();
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(resolvedParams.id);
+  const queryField = isUUID ? 'id' : 'slug';
+
+  const { data: prop } = await supabase
+    .from('properties')
+    .select('*')
+    .eq(queryField, resolvedParams.id)
+    .single();
+
+  if (!prop) {
+    return { title: 'Property Not Found | Atharva Real Infra' };
+  }
+
+  const title = prop.seo_title || `Premium ${prop.property_type} in ${prop.village || prop.taluka}, ${prop.district} | Atharva Real Infra`;
+  const description = prop.seo_description || `Explore this premium ${prop.property_type.toLowerCase()} located in ${prop.village || prop.taluka}, ${prop.district}. ${prop.area_display} for ${prop.price_display}. Contact Atharva Real Infra for investment opportunities in Maharashtra.`;
+  const keywords = prop.seo_keywords || `Property in ${prop.district}, ${prop.property_type} in ${prop.taluka}, Land for Sale in Maharashtra, Real Estate in ${prop.village || prop.taluka}`;
+  
+  const ogImage = prop.thumbnail_image || (prop.images && prop.images[0]) || '/images/og-default.jpg';
+  const url = `https://atharvarealinfra.com/properties/${prop.slug || prop.id}`;
+
+  return {
+    title,
+    description,
+    keywords,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: 'Atharva Real Infra',
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+      locale: 'en_IN',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImage],
+    },
+  };
+}
 
 export default async function PropertyDetails({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
   const supabase = getServiceSupabase();
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(resolvedParams.id);
+  const queryField = isUUID ? 'id' : 'slug';
+
   const { data: prop, error } = await supabase
     .from('properties')
     .select('*')
-    .eq('id', resolvedParams.id)
+    .eq(queryField, resolvedParams.id)
     .single();
 
   const { data: settings } = await supabase.from('settings').select('*').single();
@@ -49,8 +108,35 @@ export default async function PropertyDetails({ params }: { params: Promise<{ id
   let parsedDocuments = [];
   try { parsedDocuments = typeof prop.documents === 'string' ? JSON.parse(prop.documents) : prop.documents; } catch(e) {}
   if (!Array.isArray(parsedDocuments)) parsedDocuments = [];
+  let parsedAmenities = [];
+  try { parsedAmenities = typeof prop.amenities === 'string' ? JSON.parse(prop.amenities) : prop.amenities; } catch(e) {}
+  if (!Array.isArray(parsedAmenities)) parsedAmenities = [];
+
+  const schemaOrg = {
+    "@context": "https://schema.org",
+    "@type": "RealEstateListing",
+    "name": prop.seo_title || prop.title,
+    "description": prop.seo_description || prop.description,
+    "url": `https://atharvarealinfra.com/properties/${prop.slug || prop.id}`,
+    "image": prop.thumbnail_image || (prop.images && prop.images.length > 0 ? prop.images[0] : undefined),
+    "datePosted": prop.created_at,
+    "offers": {
+      "@type": "Offer",
+      "price": prop.price_numeric,
+      "priceCurrency": "INR",
+      "availability": prop.status === 'Available' ? "https://schema.org/InStock" : "https://schema.org/SoldOut"
+    },
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": prop.village || prop.taluka,
+      "addressRegion": "Maharashtra",
+      "addressCountry": "IN"
+    }
+  };
+
   return (
     <div className={styles.propertyDetailsPage}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }} />
       {/* Gallery Section */}
       <MediaGallery images={prop.images} />
 
@@ -94,6 +180,19 @@ export default async function PropertyDetails({ params }: { params: Promise<{ id
                 {prop.near_highway && <li>Near NH-66 Highway</li>}
               </ul>
             </div>
+
+            {parsedAmenities && parsedAmenities.length > 0 && (
+              <div className={styles.section}>
+                <h2>Amenities & Features</h2>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.8rem' }}>
+                  {parsedAmenities.map((am: string, i: number) => (
+                    <span key={i} style={{ background: 'rgba(212,175,55,0.1)', border: '1px solid var(--accent-gold)', padding: '0.5rem 1rem', borderRadius: '20px', color: 'white' }}>
+                      ✓ {am}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className={styles.section}>
               <h2>Location Map</h2>

@@ -50,7 +50,7 @@ export default function PropertyCard({ prop, index = 0, styleClass = '' }: { pro
   };
 
   return (
-    <Link href={`/properties/${prop.id}`} className={`${styleClass} reveal stagger-${index + 1}`} style={{ display: 'block', textDecoration: 'none', color: 'inherit', height: '100%' }}>
+    <Link href={`/properties/${prop.slug || prop.id}`} className={`${styleClass} reveal stagger-${index + 1}`} style={{ display: 'block', textDecoration: 'none', color: 'inherit', height: '100%' }}>
       <div className={styles.propertyCard} style={{ height: '100%', padding: '0.75rem', display: 'flex', flexDirection: 'column' }}>
         <div className={styles.propertyImage} style={{ position: 'relative', overflow: 'hidden', borderRadius: '12px', height: '280px', flexShrink: 0 }}>
           

@@ -42,6 +42,15 @@ export async function createProperty(formData: FormData) {
   const latitude = parseFloat(formData.get('latitude') as string) || null;
   const longitude = parseFloat(formData.get('longitude') as string) || null;
   
+  const slug = formData.get('slug') as string || null;
+  const seo_title = formData.get('seo_title') as string || null;
+  const seo_description = formData.get('seo_description') as string || null;
+  const seo_keywords = formData.get('seo_keywords') as string || null;
+  const thumbnail_image = formData.get('thumbnail_image') as string || null;
+  
+  const amenitiesJson = formData.get('amenities') as string;
+  const amenities = amenitiesJson ? JSON.parse(amenitiesJson) : [];
+  
   const imagesJson = formData.get('images') as string;
   const images = imagesJson ? JSON.parse(imagesJson) : [];
   
@@ -66,6 +75,12 @@ export async function createProperty(formData: FormData) {
     is_featured,
     latitude,
     longitude,
+    slug,
+    seo_title,
+    seo_description,
+    seo_keywords,
+    thumbnail_image,
+    amenities,
     images,
     videos,
     documents
@@ -122,6 +137,15 @@ export async function updateProperty(id: string, formData: FormData) {
   const is_featured = formData.get('is_featured') === 'on';
   const latitude = parseFloat(formData.get('latitude') as string) || null;
   const longitude = parseFloat(formData.get('longitude') as string) || null;
+
+  const slug = formData.get('slug') as string || null;
+  const seo_title = formData.get('seo_title') as string || null;
+  const seo_description = formData.get('seo_description') as string || null;
+  const seo_keywords = formData.get('seo_keywords') as string || null;
+  const thumbnail_image = formData.get('thumbnail_image') as string || null;
+  
+  const amenitiesJson = formData.get('amenities') as string;
+  const amenities = amenitiesJson ? JSON.parse(amenitiesJson) : [];
   
   const imagesJson = formData.get('images') as string;
   const images = imagesJson ? JSON.parse(imagesJson) : [];
@@ -147,6 +171,12 @@ export async function updateProperty(id: string, formData: FormData) {
     is_featured,
     latitude,
     longitude,
+    slug,
+    seo_title,
+    seo_description,
+    seo_keywords,
+    thumbnail_image,
+    amenities,
     images,
     videos,
     documents
