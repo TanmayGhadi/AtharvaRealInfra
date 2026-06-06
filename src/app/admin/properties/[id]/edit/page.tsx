@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, use } from 'react';
 import { updateProperty, getProperty, getLocations } from '../../actions';
 import styles from '../../../admin.module.css';
 import Link from 'next/link';
 
 import { uploadMediaServer } from '../../uploadAction';
 
-export default function EditPropertyPage({ params }: { params: { id: string } }) {
+export default function EditPropertyPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
   const [loading, setLoading] = useState(true);
   const [property, setProperty] = useState<any>(null);
   
@@ -45,7 +46,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
 
   useEffect(() => {
     async function fetchProperty() {
-      const data = await getProperty(params.id);
+      const data = await getProperty(resolvedParams.id);
       if (data) {
         setProperty(data);
         setDistrict(data.district || '');
@@ -87,7 +88,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
       setLoading(false);
     }
     fetchProperty();
-  }, [params.id]);
+  }, [resolvedParams.id]);
 
   useEffect(() => {
     async function fetchLocations() {
@@ -256,7 +257,7 @@ export default function EditPropertyPage({ params }: { params: { id: string } })
   if (loading) return <div style={{ padding: '2rem', color: 'white' }}>Loading property details...</div>;
   if (!property) return <div style={{ padding: '2rem', color: '#f87171' }}>Property not found.</div>;
 
-  const updatePropertyWithId = updateProperty.bind(null, params.id);
+  const updatePropertyWithId = updateProperty.bind(null, resolvedParams.id);
 
   return (
     <div>
