@@ -13,7 +13,22 @@ export const metadata: Metadata = {
     default: "Premium Agricultural Land Investment | Atharva Real Infra",
   },
   description: "Invest in premium agricultural and NA plots near Sindhudurg, Mopa Airport and Goa. Trusted land investment opportunities in Maharashtra.",
-  keywords: ["Agricultural land near Goa", "Land investment near Goa", "Mopa Airport investment plots", "Agricultural plots in Sindhudurg", "NA plots near Goa", "Farm land for sale in Konkan", "Real estate investment in Sindhudurg", "Premium land investment Maharashtra", "Property near Mopa Airport"],
+  keywords: [
+    "Agricultural Land in Kankavli",
+    "Agricultural Land in Sindhudurg",
+    "Land for Sale in Sindhudurg",
+    "Farm Land Near Goa",
+    "Agricultural Land in Goa Border",
+    "Agricultural Plots in Sawantwadi",
+    "Agricultural Land in Dodamarg",
+    "Farmhouse Land in Devgad",
+    "Agricultural Land in Kudal",
+    "Agricultural Land in Vengurla",
+    "Land Near Mopa Airport",
+    "Investment Land in Konkan",
+    "Agricultural Property Maharashtra",
+    "Farm Land Investment India"
+  ],
   openGraph: {
     type: 'website',
     locale: 'en_IN',
