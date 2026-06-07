@@ -123,9 +123,9 @@ export default function NewPropertyPage() {
         if (result && result.url) {
           newFiles.push(result.url);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error(`Cloudinary ${type} upload failed:`, err);
-        alert(`${type} upload failed. Please try again.`);
+        alert(`${type} upload failed: ${err.message || 'Unknown error'}. Please try again.`);
       }
     }
     

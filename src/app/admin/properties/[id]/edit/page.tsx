@@ -203,9 +203,9 @@ export default function EditPropertyPage({ params }: { params: any }) {
             }
           }
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error(`Cloudinary ${type} upload failed:`, err);
-        alert(`${type} upload failed. Please try again.`);
+        alert(`${type} upload failed: ${err.message || 'Unknown error'}. Please try again.`);
       }
     }
     
