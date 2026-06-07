@@ -28,7 +28,6 @@ export async function updateSettings(formData: FormData) {
     throw new Error(error.message);
   }
   
-  revalidatePath('/');
-  revalidatePath('/admin/settings');
+  revalidatePath('/', 'layout');
   return { success: true };
 }

@@ -73,9 +73,7 @@ export async function processBulkUpload(properties: any[]) {
     }
   }
 
-  revalidatePath('/');
-  revalidatePath('/properties');
-  revalidatePath('/admin/properties');
+  revalidatePath('/', 'layout');
 
   return results;
 }

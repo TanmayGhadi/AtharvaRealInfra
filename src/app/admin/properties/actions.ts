@@ -94,9 +94,7 @@ export async function createProperty(formData: FormData) {
     throw new Error(error.message);
   }
 
-  revalidatePath('/');
-  revalidatePath('/properties');
-  revalidatePath('/admin/properties');
+  revalidatePath('/', 'layout');
   return { success: true, id: data?.[0]?.id };
 }
 
@@ -107,9 +105,7 @@ export async function deleteProperty(id: string) {
     console.error("Error deleting property:", error);
     throw new Error(error.message);
   }
-  revalidatePath('/');
-  revalidatePath('/properties');
-  revalidatePath('/admin/properties');
+  revalidatePath('/', 'layout');
 }
 
 export async function updatePropertyStatus(id: string, status: string) {
@@ -119,8 +115,7 @@ export async function updatePropertyStatus(id: string, status: string) {
     console.error("Error updating property status:", error);
     throw new Error(error.message);
   }
-  revalidatePath('/properties');
-  revalidatePath('/admin/properties');
+  revalidatePath('/', 'layout');
 }
 
 export async function updateProperty(id: string, formData: FormData) {
@@ -140,6 +135,9 @@ export async function updateProperty(id: string, formData: FormData) {
   const is_featured = formData.get('is_featured') === 'on';
   const latitude = parseFloat(formData.get('latitude') as string) || null;
   const longitude = parseFloat(formData.get('longitude') as string) || null;
+
+  console.log("UPDATE PROPERTY CALLED! ID:", id);
+  console.log("TITLE RECEIVED:", title, "PRICE:", price_numeric);
 
   const slug = formData.get('slug') as string || null;
   const seo_title = formData.get('seo_title') as string || null;
@@ -193,8 +191,7 @@ export async function updateProperty(id: string, formData: FormData) {
     throw new Error(error.message);
   }
 
-  revalidatePath('/');
-  revalidatePath('/properties');
-  revalidatePath('/admin/properties');
+  revalidatePath('/', 'layout');
+  
   return { success: true };
 }
