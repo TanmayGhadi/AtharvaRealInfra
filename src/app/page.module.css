@@ -498,18 +498,10 @@
 
 .testimonialTrack {
   display: flex;
-  gap: 4rem;
-  width: max-content;
-  animation: marquee 30s linear infinite;
-}
-
-.testimonialTrack:hover {
-  animation-play-state: paused;
-}
-
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  width: 100%;
 }
 
 .testimonialItem {

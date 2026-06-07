@@ -14,7 +14,8 @@ CREATE TABLE districts (
     UNIQUE(state_id, name)
 );
 
--- 3. Create Talukas Table
+-- 3. Create Talukas Tablecheck i had added
+
 CREATE TABLE talukas (
     id SERIAL PRIMARY KEY,
     district_id INTEGER REFERENCES districts(id) ON DELETE CASCADE,

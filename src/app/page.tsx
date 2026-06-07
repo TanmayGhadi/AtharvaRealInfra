@@ -220,8 +220,6 @@ export default async function Home() {
             '"Best investment decision of my life. The land I bought doubled in value within 2 years." — Rajesh M., Pune',
             '"Atharva Real Infra handled everything seamlessly. Transparent, professional, and trustworthy." — Priya S., Mumbai',
             '"Got a beautiful farmhouse plot in Dodamarg. The team was with us every step of the way." — Amit K., Kolhapur',
-            '"Best investment decision of my life. The land I bought doubled in value within 2 years." — Rajesh M., Pune',
-            '"Atharva Real Infra handled everything seamlessly. Transparent, professional, and trustworthy." — Priya S., Mumbai',
           ].map((t, i) => (
             <div key={i} className={styles.testimonialItem}>
               <span className={styles.quoteIcon}>"</span>
