@@ -235,7 +235,10 @@ export default function NewPropertyPage() {
       formData.set('thumbnail_image', images.length > 0 ? images[0] : '');
 
       const result = await createProperty(formData);
-      if (result.success) {
+      if (result && result.error) {
+        throw new Error(result.error);
+      }
+      if (result && result.success) {
         setSaveStatus('success');
         // Let them see success message, then redirect after 2s
         setTimeout(() => {

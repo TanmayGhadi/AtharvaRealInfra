@@ -89,9 +89,9 @@ export async function createProperty(formData: FormData) {
   if (error) {
     console.error("Error creating property:", error);
     if (error.code === '23505' && error.message.includes('slug')) {
-      throw new Error("A property with this SEO slug already exists. Please choose a unique slug.");
+      return { success: false, error: "A property with this SEO slug already exists. Please choose a unique slug." };
     }
-    throw new Error(error.message);
+    return { success: false, error: error.message };
   }
 
   revalidatePath('/', 'layout');
@@ -186,9 +186,9 @@ export async function updateProperty(id: string, formData: FormData) {
   if (error) {
     console.error("Error updating property:", error);
     if (error.code === '23505' && error.message.includes('slug')) {
-      throw new Error("A property with this SEO slug already exists. Please choose a unique slug.");
+      return { success: false, error: "A property with this SEO slug already exists. Please choose a unique slug." };
     }
-    throw new Error(error.message);
+    return { success: false, error: error.message };
   }
 
   revalidatePath('/', 'layout');

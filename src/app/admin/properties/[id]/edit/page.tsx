@@ -361,7 +361,10 @@ export default function EditPropertyPage({ params }: { params: any }) {
       formData.set('videos', JSON.stringify(videos));
       formData.set('documents', JSON.stringify(documents));
 
-      await updateProperty(property.id, formData);
+      const result = await updateProperty(property.id, formData);
+      if (result && result.error) {
+        throw new Error(result.error);
+      }
       
       setSaveStatus('success');
       setTimeout(() => setSaveStatus('idle'), 3000);
