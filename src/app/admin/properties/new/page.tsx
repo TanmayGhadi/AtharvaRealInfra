@@ -106,14 +106,76 @@ export default function NewPropertyPage() {
   const availableTalukas = district ? Object.keys(locationHierarchy[district] || {}) : [];
   const availableVillages = district && taluka ? locationHierarchy[district][taluka] || [] : [];
 
+  const compressImage = (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      // Don't compress if not an image or if it's already small (< 5MB)
+      if (!file.type.startsWith('image/') || file.size <= 5 * 1024 * 1024) {
+        return resolve(file);
+      }
+
+      const img = new window.Image();
+      const url = URL.createObjectURL(file);
+      
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        
+        // Max dimensions
+        const MAX_WIDTH = 1920;
+        const MAX_HEIGHT = 1080;
+        
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width = Math.round((width * MAX_HEIGHT) / height);
+            height = MAX_HEIGHT;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return resolve(file);
+        
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Compress to 80% quality JPEG
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+              type: 'image/jpeg',
+              lastModified: Date.now(),
+            });
+            resolve(compressedFile);
+          } else {
+            resolve(file);
+          }
+        }, 'image/jpeg', 0.8);
+      };
+      img.onerror = () => resolve(file);
+      img.src = url;
+    });
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video' | 'document') => {
     if (!e.target.files || e.target.files.length === 0) return;
     
     setUploading(true);
-    const newFiles = type === 'image' ? [...images] : type === 'video' ? [...videos] : [...documents];
+    let newFiles = type === 'image' ? [...images] : type === 'video' ? [...videos] : [...documents];
     
     for (let i = 0; i < e.target.files.length; i++) {
-      const file = e.target.files[i];
+      let file = e.target.files[i];
+      
+      // Auto-compress large images before uploading
+      if (type === 'image') {
+        file = await compressImage(file);
+      }
       try {
         // Get signature from API
         const sigRes = await fetch('/api/upload-signature', { method: 'POST' });
