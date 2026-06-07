@@ -259,19 +259,59 @@ export default function EditPropertyPage({ params }: { params: any }) {
     setAmenities(amenities.filter((_, i) => i !== index));
   };
 
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSaveStatus('saving');
+    setErrorMessage('');
+    
+    try {
+      const formData = new FormData(e.currentTarget);
+      // Append complex fields
+      formData.set('images', JSON.stringify(images));
+      formData.set('thumbnail_image', thumbnailImage || '');
+      formData.set('amenities', JSON.stringify(amenities));
+      formData.set('videos', JSON.stringify(videos));
+      formData.set('documents', JSON.stringify(documents));
+
+      await updateProperty(property.id, formData);
+      
+      setSaveStatus('success');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    } catch (err: any) {
+      console.error(err);
+      setSaveStatus('error');
+      setErrorMessage(err.message || 'Failed to save property.');
+    }
+  };
+
   if (loading) return <div style={{ padding: '2rem', color: 'white' }}>Loading property details...</div>;
   if (!property) return <div style={{ padding: '2rem', color: '#f87171' }}>Property not found.</div>;
-
-  const updatePropertyWithId = updateProperty.bind(null, property.id);
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1>Edit Property</h1>
         <Link href="/admin/properties" className="btn-outline" style={{ padding: '8px 16px', fontSize: '0.9rem' }}>
-          Cancel
+          Back to Properties
         </Link>
       </div>
+
+      {saveStatus === 'success' && (
+        <div style={{ background: 'rgba(74, 222, 128, 0.2)', border: '1px solid #4ade80', color: '#4ade80', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>Changes Saved Successfully! Data is permanently stored.</span>
+          <button onClick={() => setSaveStatus('idle')} style={{ background: 'none', border: 'none', color: '#4ade80', cursor: 'pointer' }}>✕</button>
+        </div>
+      )}
+
+      {saveStatus === 'error' && (
+        <div style={{ background: 'rgba(248, 113, 113, 0.2)', border: '1px solid #f87171', color: '#f87171', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>Error saving property: {errorMessage}</span>
+          <button onClick={() => setSaveStatus('idle')} style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer' }}>✕</button>
+        </div>
+      )}
 
       {/* Lightbox Overlay */}
       {previewImage && (
@@ -284,12 +324,8 @@ export default function EditPropertyPage({ params }: { params: any }) {
       )}
 
       <div className={styles.card}>
-        <form action={updatePropertyWithId} style={{ display: 'grid', gap: '1.5rem' }}>
-          <input type="hidden" name="images" value={JSON.stringify(images)} />
-          <input type="hidden" name="thumbnail_image" value={thumbnailImage || ''} />
-          <input type="hidden" name="amenities" value={JSON.stringify(amenities)} />
-          <input type="hidden" name="videos" value={JSON.stringify(videos)} />
-          <input type="hidden" name="documents" value={JSON.stringify(documents)} />
+        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.5rem' }}>
+
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
             <div>
@@ -487,8 +523,8 @@ export default function EditPropertyPage({ params }: { params: any }) {
             <Link href="/admin/properties" className="btn-outline" style={{ padding: '12px 24px' }}>
               Cancel
             </Link>
-            <button type="submit" className="btn-primary" style={{ padding: '12px 32px', fontSize: '1.1rem' }} disabled={uploading}>
-              {uploading ? 'Uploading...' : 'Save Changes'}
+            <button type="submit" className="btn-primary" style={{ padding: '12px 32px', fontSize: '1.1rem' }} disabled={uploading || saveStatus === 'saving'}>
+              {uploading ? 'Uploading...' : saveStatus === 'saving' ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </form>

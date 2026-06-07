@@ -88,13 +88,16 @@ export async function createProperty(formData: FormData) {
 
   if (error) {
     console.error("Error creating property:", error);
+    if (error.code === '23505' && error.message.includes('slug')) {
+      throw new Error("A property with this SEO slug already exists. Please choose a unique slug.");
+    }
     throw new Error(error.message);
   }
 
   revalidatePath('/');
   revalidatePath('/properties');
   revalidatePath('/admin/properties');
-  redirect('/admin/properties');
+  return { success: true, id: data?.[0]?.id };
 }
 
 export async function deleteProperty(id: string) {
@@ -184,11 +187,14 @@ export async function updateProperty(id: string, formData: FormData) {
 
   if (error) {
     console.error("Error updating property:", error);
+    if (error.code === '23505' && error.message.includes('slug')) {
+      throw new Error("A property with this SEO slug already exists. Please choose a unique slug.");
+    }
     throw new Error(error.message);
   }
 
   revalidatePath('/');
   revalidatePath('/properties');
   revalidatePath('/admin/properties');
-  redirect('/admin/properties');
+  return { success: true };
 }

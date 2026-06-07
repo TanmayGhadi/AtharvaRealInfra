@@ -17,10 +17,16 @@ export async function updateSettings(formData: FormData) {
     facebook_url: formData.get('facebook_url'),
     youtube_url: formData.get('youtube_url'),
     linkedin_url: formData.get('linkedin_url'),
+    logo_url: formData.get('logo_url'),
+    seo_title: formData.get('seo_title'),
+    seo_description: formData.get('seo_description'),
   };
 
   const { error } = await supabase.from('site_settings').upsert(settings);
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.error("Supabase Error:", error);
+    throw new Error(error.message);
+  }
   
   revalidatePath('/');
   revalidatePath('/admin/settings');

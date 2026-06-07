@@ -135,14 +135,57 @@ export default function NewPropertyPage() {
     setUploading(false);
   };
 
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSaveStatus('saving');
+    setErrorMessage('');
+    
+    try {
+      const formData = new FormData(e.currentTarget);
+      formData.set('images', JSON.stringify(images));
+      formData.set('videos', JSON.stringify(videos));
+      formData.set('documents', JSON.stringify(documents));
+      formData.set('thumbnail_image', images.length > 0 ? images[0] : '');
+
+      const result = await createProperty(formData);
+      if (result.success) {
+        setSaveStatus('success');
+        // Let them see success message, then redirect after 2s
+        setTimeout(() => {
+          window.location.href = '/admin/properties';
+        }, 2000);
+      }
+    } catch (err: any) {
+      console.error(err);
+      setSaveStatus('error');
+      setErrorMessage(err.message || 'Failed to create property.');
+    }
+  };
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1>Add New Property</h1>
         <Link href="/admin/properties" className="btn-outline" style={{ padding: '8px 16px', fontSize: '0.9rem' }}>
-          Cancel
+          Back to Properties
         </Link>
       </div>
+
+      {saveStatus === 'success' && (
+        <div style={{ background: 'rgba(74, 222, 128, 0.2)', border: '1px solid #4ade80', color: '#4ade80', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>Property Created Successfully! Redirecting...</span>
+        </div>
+      )}
+
+      {saveStatus === 'error' && (
+        <div style={{ background: 'rgba(248, 113, 113, 0.2)', border: '1px solid #f87171', color: '#f87171', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>Error creating property: {errorMessage}</span>
+          <button type="button" onClick={() => setSaveStatus('idle')} style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer' }}>✕</button>
+        </div>
+      )}
 
       {/* Lightbox Overlay */}
       {previewImage && (
@@ -155,9 +198,7 @@ export default function NewPropertyPage() {
       )}
 
       <div className={styles.card}>
-        <form action={createProperty} style={{ display: 'grid', gap: '1.5rem' }}>
-          {/* We use a hidden input to pass the images array to the server action */}
-          <input type="hidden" name="images" value={JSON.stringify(images)} />
+        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.5rem' }}>
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
             <div>
@@ -300,8 +341,8 @@ export default function NewPropertyPage() {
             </div>
           </div>
 
-          <button type="submit" className="btn-primary" style={{ marginTop: '1rem' }} disabled={uploading}>
-            Publish Property
+          <button type="submit" className="btn-primary" style={{ marginTop: '1rem' }} disabled={uploading || saveStatus === 'saving'}>
+            {uploading ? 'Uploading...' : saveStatus === 'saving' ? 'Creating...' : 'Publish Property'}
           </button>
         </form>
       </div>

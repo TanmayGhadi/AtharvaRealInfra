@@ -20,7 +20,9 @@ export default async function AdminProperties() {
           <p className="text-secondary" style={{ marginTop: '0.5rem' }}>Manage your premium land listings and investments.</p>
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
-          <button className="btn-outline">Bulk Actions</button>
+          <Link href="/admin/properties/bulk" className="btn-outline" style={{ padding: '8px 16px', fontSize: '0.9rem', display: 'flex', alignItems: 'center' }}>
+            Bulk Actions / Import
+          </Link>
           <Link href="/admin/properties/new" className="btn-primary" style={{ padding: '8px 16px', fontSize: '0.9rem' }}>
             + Add New Property
           </Link>
