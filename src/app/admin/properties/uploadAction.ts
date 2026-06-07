@@ -22,14 +22,14 @@ export async function uploadMediaServer(formData: FormData) {
     const mimeType = file.type || 'application/octet-stream';
     const base64Data = `data:${mimeType};base64,${buffer.toString('base64')}`;
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       cloudinary.uploader.upload(base64Data, {
         resource_type: resourceType,
         folder: 'atharva_real_infra',
       }, (error, result) => {
         if (error) {
           console.error('Cloudinary upload error:', error);
-          reject(new Error(error.message || 'Cloudinary upload failed'));
+          resolve({ error: error.message || 'Cloudinary upload failed' });
         } else {
           resolve({ url: result?.secure_url });
         }
@@ -37,6 +37,6 @@ export async function uploadMediaServer(formData: FormData) {
     });
   } catch (err: any) {
     console.error('uploadMediaServer Error:', err);
-    throw new Error(`Upload failed: ${err.message}`);
+    return { error: `Upload failed: ${err.message}` };
   }
 }

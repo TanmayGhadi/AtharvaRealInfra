@@ -120,6 +120,9 @@ export default function NewPropertyPage() {
 
       try {
         const result: any = await uploadMediaServer(formData);
+        if (result && result.error) {
+          throw new Error(result.error);
+        }
         if (result && result.url) {
           newFiles.push(result.url);
         }

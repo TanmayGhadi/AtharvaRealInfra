@@ -190,6 +190,9 @@ export default function EditPropertyPage({ params }: { params: any }) {
 
       try {
         const result: any = await uploadMediaServer(formData);
+        if (result && result.error) {
+          throw new Error(result.error);
+        }
         if (result && result.url) {
           if (replaceIdx !== null) {
             newFiles[replaceIdx] = result.url;
