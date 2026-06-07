@@ -189,14 +189,9 @@ export default function EditPropertyPage({ params }: { params: any }) {
       formData.append('type', type === 'document' ? 'raw' : type); 
 
       try {
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-        const result = await response.json();
-        
-        if (!response.ok || result.error) {
-          throw new Error(result.error || `HTTP error ${response.status}`);
+        const result: any = await uploadMediaServer(formData);
+        if (result && result.error) {
+          throw new Error(result.error);
         }
         if (result && result.url) {
           if (replaceIdx !== null) {
