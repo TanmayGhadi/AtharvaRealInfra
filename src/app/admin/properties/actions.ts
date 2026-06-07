@@ -80,7 +80,7 @@ export async function createProperty(formData: FormData) {
     seo_description,
     seo_keywords,
     thumbnail_image,
-    amenities,
+    // amenities, // Removed temporarily because column does not exist in DB
     images,
     videos,
     documents
@@ -177,7 +177,7 @@ export async function updateProperty(id: string, formData: FormData) {
     seo_description,
     seo_keywords,
     thumbnail_image,
-    amenities,
+    // amenities, // Removed temporarily because column does not exist in DB
     images,
     videos,
     documents
