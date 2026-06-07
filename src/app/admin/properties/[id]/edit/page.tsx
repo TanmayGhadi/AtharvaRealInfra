@@ -184,25 +184,45 @@ export default function EditPropertyPage({ params }: { params: any }) {
     
     for (let i = 0; i < e.target.files.length; i++) {
       const file = e.target.files[i];
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', type === 'document' ? 'raw' : type); 
-
       try {
-        const result: any = await uploadMediaServer(formData);
-        if (result && result.error) {
-          throw new Error(result.error);
+        // Get signature from API
+        const sigRes = await fetch('/api/upload-signature', { method: 'POST' });
+        const sigData = await sigRes.json();
+        
+        if (!sigRes.ok || sigData.error) {
+          throw new Error(sigData.error || 'Failed to get upload signature');
         }
-        if (result && result.url) {
+
+        // Upload directly to Cloudinary
+        const cloudinaryData = new FormData();
+        cloudinaryData.append('file', file);
+        cloudinaryData.append('api_key', sigData.api_key);
+        cloudinaryData.append('timestamp', sigData.timestamp);
+        cloudinaryData.append('signature', sigData.signature);
+        cloudinaryData.append('folder', 'atharva_real_infra');
+
+        const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${sigData.cloud_name}/${type === 'video' ? 'video' : type === 'document' ? 'raw' : 'image'}/upload`, {
+          method: 'POST',
+          body: cloudinaryData,
+        });
+        
+        const result = await uploadRes.json();
+        
+        if (!uploadRes.ok || result.error) {
+          throw new Error(result.error?.message || result.error || `HTTP error ${uploadRes.status}`);
+        }
+        
+        if (result && result.secure_url) {
+          const url = result.secure_url;
           if (replaceIdx !== null) {
-            newFiles[replaceIdx] = result.url;
+            newFiles[replaceIdx] = url;
             if (thumbnailImage === images[replaceIdx]) {
-              setThumbnailImage(result.url);
+              setThumbnailImage(url);
             }
           } else {
-            newFiles.push(result.url);
+            newFiles.push(url);
             if (type === 'image' && newFiles.length === 1 && !thumbnailImage) {
-              setThumbnailImage(result.url);
+              setThumbnailImage(url);
             }
           }
         }
