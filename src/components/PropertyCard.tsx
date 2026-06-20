@@ -4,8 +4,30 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from '../app/page.module.css'; // Adjust path if needed, we'll create a standalone CSS or use global classes
 
+let cachedWhatsappNumber: string | null = null;
+
 export default function PropertyCard({ prop, index = 0, styleClass = '' }: { prop: any, index?: number, styleClass?: string }) {
   const [currentImage, setCurrentImage] = useState(0);
+  const [whatsappNumber, setWhatsappNumber] = useState<string>(
+    cachedWhatsappNumber || process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || '918788818163'
+  );
+
+  useEffect(() => {
+    if (cachedWhatsappNumber) {
+      setWhatsappNumber(cachedWhatsappNumber);
+      return;
+    }
+    
+    import('@/lib/supabase').then(({ supabase }) => {
+      supabase.from('site_settings').select('whatsapp_number').eq('id', 1).single()
+        .then(({ data }) => {
+          if (data?.whatsapp_number) {
+            cachedWhatsappNumber = data.whatsapp_number;
+            setWhatsappNumber(data.whatsapp_number);
+          }
+        });
+    });
+  }, []);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
 
@@ -124,9 +146,31 @@ export default function PropertyCard({ prop, index = 0, styleClass = '' }: { pro
               <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `tel:${process.env.NEXT_PUBLIC_CONTACT_PHONE || '+917843097793'}`; }}
                  className="btn-primary" 
                  style={{flex: 1, textAlign: 'center', padding: '6px', fontSize: '0.8rem', border: 'none'}}>Call</button>
-              <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.open(`https://wa.me/${process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || '917843097793'}?text=Hi, I am interested in property ${prop.title}`, '_blank'); }}
+              <button onClick={(e) => { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+                const text = `Hello Atharva Real Infra,\n\nI am interested in the following property:\n\nProperty Name:\n${prop.title}\n\nProperty ID:\n${prop.id}\n\nLocation:\n${prop.village || ''}, ${prop.taluka || ''}\n\nPlease share more details.`;
+                window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`, '_blank'); 
+              }}
                  className="btn-outline" 
-                 style={{flex: 1, textAlign: 'center', padding: '6px', fontSize: '0.8rem', borderColor: '#25D366', color: '#25D366'}}>WhatsApp</button>
+                 style={{
+                   flex: 1, 
+                   display: 'flex',
+                   alignItems: 'center',
+                   justifyContent: 'center',
+                   gap: '4px',
+                   textAlign: 'center', 
+                   padding: '6px', 
+                   fontSize: '0.8rem', 
+                   borderColor: '#25D366', 
+                   color: '#25D366'
+                 }}
+              >
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                  <path d="M19.05 4.91A9.816 9.816 0 0 0 12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01zm-7.01 15.24c-1.48 0-2.93-.4-4.18-1.15l-.3-.18-3.11.82.83-3.03-.2-.31a8.098 8.098 0 0 1-1.24-4.38c0-4.47 3.64-8.11 8.11-8.11 2.16 0 4.2.84 5.73 2.37 1.53 1.53 2.37 3.57 2.37 5.73-.01 4.47-3.65 8.12-8.11 8.12zm4.44-6.07c-.24-.12-1.44-.71-1.66-.79-.22-.08-.38-.12-.54.12-.16.24-.62.79-.76.95-.14.16-.28.18-.52.06-1.54-.77-2.63-1.4-3.67-3.2-.27-.47.27-.44.78-1.46.08-.16.04-.3-.02-.42s-.54-1.3-.74-1.78c-.2-.48-.4-.41-.54-.42-.14 0-.3-.02-.46-.02-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2 0 1.18.86 2.32.98 2.48.12.16 1.69 2.58 4.1 3.62.57.25 1.02.4 1.37.51.58.18 1.1.16 1.51.1.46-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28z"/>
+                </svg>
+                WhatsApp
+              </button>
             </div>
           </div>
         </div>

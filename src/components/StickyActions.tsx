@@ -5,8 +5,8 @@ import styles from './StickyActions.module.css';
 
 export default function StickyActions() {
   const [isVisible, setIsVisible] = useState(false);
-  const phone = process.env.NEXT_PUBLIC_CONTACT_PHONE || '+919876543210';
-  const whatsapp = process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || '919876543210';
+  const phone = process.env.NEXT_PUBLIC_CONTACT_PHONE || '+917843097793';
+  const whatsapp = process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || '918788818163';
 
   useEffect(() => {
     const toggleVisibility = () => {

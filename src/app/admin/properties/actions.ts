@@ -60,7 +60,8 @@ export async function createProperty(formData: FormData) {
   const documentsJson = formData.get('documents') as string;
   const documents = documentsJson ? JSON.parse(documentsJson) : [];
 
-  const { data, error } = await supabase.from('properties').insert({
+  // Base columns that are confirmed to exist in the database
+  const baseInsertData: Record<string, any> = {
     title,
     description,
     district,
@@ -75,16 +76,31 @@ export async function createProperty(formData: FormData) {
     is_featured,
     latitude,
     longitude,
-    slug,
-    seo_title,
-    seo_description,
-    seo_keywords,
-    thumbnail_image,
-    // amenities, // Removed temporarily because column does not exist in DB
     images,
     videos,
     documents
-  }).select();
+  };
+
+  // Extended data with SEO fields (available after running the SQL migration)
+  const extendedInsertData = {
+    ...baseInsertData,
+    ...(slug ? { slug } : {}),
+    ...(seo_title ? { seo_title } : {}),
+    ...(seo_description ? { seo_description } : {}),
+    ...(seo_keywords ? { seo_keywords } : {}),
+    ...(thumbnail_image ? { thumbnail_image } : {}),
+    ...(amenities?.length > 0 ? { amenities } : {}),
+  };
+
+  // Try with all fields first, fall back to base fields if SEO columns don't exist
+  let { data, error } = await supabase.from('properties').insert(extendedInsertData).select();
+  
+  if (error && error.message.includes('does not exist')) {
+    console.warn('SEO columns not found in DB, saving without SEO fields. Run the SQL migration to enable SEO fields.');
+    const result2 = await supabase.from('properties').insert(baseInsertData).select();
+    error = result2.error;
+    data = result2.data;
+  }
 
   if (error) {
     console.error("Error creating property:", error);
@@ -157,7 +173,8 @@ export async function updateProperty(id: string, formData: FormData) {
   const documentsJson = formData.get('documents') as string;
   const documents = documentsJson ? JSON.parse(documentsJson) : [];
 
-  const { error } = await supabase.from('properties').update({
+  // Base update data — confirmed to exist in the database
+  const baseUpdateData: Record<string, any> = {
     title,
     description,
     district,
@@ -172,16 +189,30 @@ export async function updateProperty(id: string, formData: FormData) {
     is_featured,
     latitude,
     longitude,
-    slug,
-    seo_title,
-    seo_description,
-    seo_keywords,
-    thumbnail_image,
-    // amenities, // Removed temporarily because column does not exist in DB
     images,
     videos,
     documents
-  }).eq('id', id);
+  };
+
+  // Extended data with SEO fields (available after running the SQL migration)
+  const extendedUpdateData = {
+    ...baseUpdateData,
+    slug: slug || null,
+    seo_title: seo_title || null,
+    seo_description: seo_description || null,
+    seo_keywords: seo_keywords || null,
+    thumbnail_image: thumbnail_image || null,
+    amenities,
+  };
+
+  // Try with all fields first, fall back to base fields if SEO columns don't exist yet
+  let { error } = await supabase.from('properties').update(extendedUpdateData).eq('id', id);
+
+  if (error && error.message.includes('does not exist')) {
+    console.warn('SEO columns not found in DB, saving without SEO fields. Run the SQL migration to enable SEO fields.');
+    const result2 = await supabase.from('properties').update(baseUpdateData).eq('id', id);
+    error = result2.error;
+  }
 
   if (error) {
     console.error("Error updating property:", error);

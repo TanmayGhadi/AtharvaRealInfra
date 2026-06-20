@@ -82,7 +82,7 @@ CREATE TABLE site_settings (
 
 -- Insert default settings row
 INSERT INTO site_settings (id, phone_number, whatsapp_number, email_address, office_address) 
-VALUES (1, '+91 98765 43210', '919876543210', 'info@atharvarealinfra.com', 'Sindhudurg, Maharashtra')
+VALUES (1, '+91 98765 43210', '918788818163', 'info@atharvarealinfra.com', 'Sindhudurg, Maharashtra')
 ON CONFLICT (id) DO NOTHING;
 
 -- ============================================
