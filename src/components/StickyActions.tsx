@@ -25,7 +25,7 @@ export default function StickyActions() {
 
   return (
     <div className={styles.stickyContainer}>
-      <a href={`tel:${phone}`} className={`${styles.actionButton} ${styles.callButton}`} aria-label="Call Us">
+      <a href={`tel:${phone.replace(/\s+/g, '')}`} className={`${styles.actionButton} ${styles.callButton}`} aria-label="Call Us">
         📞
       </a>
       <a href={`https://wa.me/${whatsapp}?text=Hello%20Atharva%20Real%20Infra,%20I%20am%20interested%20in%20your%20properties.`} target="_blank" rel="noopener noreferrer" className={`${styles.actionButton} ${styles.whatsappButton}`} aria-label="WhatsApp Us">

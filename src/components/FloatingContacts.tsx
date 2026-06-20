@@ -11,7 +11,7 @@ export default function FloatingContacts() {
     cachedWhatsappNumber || process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || '918788818163'
   );
   const [phoneNumber, setPhoneNumber] = useState<string>(
-    cachedPhoneNumber || '+918788818163'
+    cachedPhoneNumber || process.env.NEXT_PUBLIC_CONTACT_PHONE || '+918788818163'
   );
 
   useEffect(() => {
@@ -93,7 +93,7 @@ export default function FloatingContacts() {
 
       {/* Call Button */}
       <a 
-        href={`tel:${phoneNumber}`} 
+        href={`tel:${phoneNumber.replace(/\s+/g, '')}`} 
         style={{
           width: '56px', height: '56px', borderRadius: '50%', background: 'var(--accent-gold, #D4AF37)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
