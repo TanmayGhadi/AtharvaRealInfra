@@ -11,7 +11,7 @@ export default function FloatingContacts() {
     cachedWhatsappNumber || process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || '918788818163'
   );
   const [phoneNumber, setPhoneNumber] = useState<string>(
-    cachedPhoneNumber || '+917843097793'
+    cachedPhoneNumber || '+918788818163'
   );
 
   useEffect(() => {

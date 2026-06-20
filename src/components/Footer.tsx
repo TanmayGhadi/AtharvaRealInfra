@@ -58,7 +58,7 @@ export default async function Footer() {
                   <span>📍</span> {settings?.office_address || 'Samartha Residency, Janavali, Kankavli near NH 66'}
                 </li>
                 <li>
-                  <span>📞</span> {settings?.phone_number || '+91 7843097793'}
+                  <span>📞</span> {settings?.phone_number || '+91 87888 18163'}
                 </li>
                 <li>
                   <span>✉️</span> {settings?.email_address || 'ds200784@atharvarealinfra.com'}

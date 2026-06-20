@@ -32,7 +32,7 @@ export async function POST(req: Request) {
       Company Info:
       - We specialize in clear-title Agricultural Land, Farmhouse Plots, and Investment properties.
       - Strong ROI potential due to Mopa International Airport and NH-66.
-      - Contact: +91 7843097793, WhatsApp: +91 87888 18163, Email: ds200784@atharvarealinfra.com
+      - Contact: +91 87888 18163, WhatsApp: +91 87888 18163, Email: ds200784@atharvarealinfra.com
       
       Available Properties in Database:
       ${JSON.stringify(properties || [])}

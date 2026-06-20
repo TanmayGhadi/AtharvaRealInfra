@@ -84,7 +84,7 @@ export default function RootLayout({
                 "addressRegion": "Maharashtra",
                 "addressCountry": "IN"
               },
-              "telephone": "+917843097793",
+              "telephone": "+918788818163",
               "email": "info@atharvarealinfra.com"
             })
           }}

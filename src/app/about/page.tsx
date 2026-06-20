@@ -153,7 +153,7 @@ export default async function AboutPage() {
               <h3 style={{ color: 'var(--accent-gold)', marginBottom: '1rem' }}>Call & WhatsApp</h3>
               <p className="text-secondary" style={{ marginBottom: '1.5rem' }}>Reach out to us directly for immediate assistance.</p>
               <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-                 <a href={`tel:${settings?.phone_number || '+917843097793'}`} className="btn-primary" style={{ padding: '0.5rem 1rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                 <a href={`tel:${settings?.phone_number || '+918788818163'}`} className="btn-primary" style={{ padding: '0.5rem 1rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span>📞</span> Call
                 </a>
                 <a 

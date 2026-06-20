@@ -57,8 +57,8 @@ export default async function ContactPage() {
             <ul style={{ listStyle: 'none', padding: 0, color: 'var(--text-secondary)' }}>
               <li style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span>📞</span>
-                <a href={`tel:${settings?.phone_number || '+917843097793'}`} className="contact-link">
-                  {settings?.phone_number || '+91 7843097793'}
+                <a href={`tel:${settings?.phone_number || '+918788818163'}`} className="contact-link">
+                  {settings?.phone_number || '+91 87888 18163'}
                 </a>
               </li>
               <li style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

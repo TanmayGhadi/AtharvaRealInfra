@@ -257,7 +257,7 @@ export default async function PropertyDetails({ params }: { params: Promise<{ id
               <p>Contact our luxury real estate experts for a private viewing or more details.</p>
               
               <div className={styles.actions}>
-                <a href={`tel:${settings?.phone_number || '+917843097793'}`} className="btn-primary" style={{display: 'block', textAlign: 'center'}}>Call Now</a>
+                <a href={`tel:${settings?.phone_number || '+918788818163'}`} className="btn-primary" style={{display: 'block', textAlign: 'center'}}>Call Now</a>
                  <a 
                   href={`https://wa.me/${settings?.whatsapp_number || '918788818163'}?text=${encodeURIComponent(
                     `Hello Atharva Real Infra,\n\nI am interested in the following property:\n\nProperty Name:\n${prop.title}\n\nProperty ID:\n${prop.id}\n\nLocation:\n${prop.village || ''}, ${prop.taluka || ''}\n\nPlease share more details.`

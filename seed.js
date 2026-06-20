@@ -66,7 +66,7 @@ async function seed() {
   const { error: settingsError } = await supabase.from('site_settings').upsert({
     id: 1,
     company_name: 'Atharva Real Infra',
-    phone_number: '+91 98765 43210',
+    phone_number: '+91 87888 18163',
     whatsapp_number: '918788818163',
     email_address: 'info@atharvarealinfra.com',
     office_address: 'Sindhudurg, Maharashtra'
