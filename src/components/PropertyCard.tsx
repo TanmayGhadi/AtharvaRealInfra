@@ -9,7 +9,7 @@ let cachedWhatsappNumber: string | null = null;
 export default function PropertyCard({ prop, index = 0, styleClass = '' }: { prop: any, index?: number, styleClass?: string }) {
   const [currentImage, setCurrentImage] = useState(0);
   const [whatsappNumber, setWhatsappNumber] = useState<string>(
-    cachedWhatsappNumber || process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || '918788818163'
+    cachedWhatsappNumber || '918788818163'
   );
 
   useEffect(() => {
@@ -143,7 +143,7 @@ export default function PropertyCard({ prop, index = 0, styleClass = '' }: { pro
               <div className="btn-outline" style={{padding: '6px 12px', fontSize: '0.8rem', cursor: 'pointer', pointerEvents: 'none'}}>View Details</div>
             </div>
             <div style={{display: 'flex', gap: '0.5rem', marginTop: '0.5rem'}}>
-              <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `tel:${process.env.NEXT_PUBLIC_CONTACT_PHONE || '+918788818163'}`; }}
+               <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `tel:+918788818163`; }}
                  className="btn-primary" 
                  style={{flex: 1, textAlign: 'center', padding: '6px', fontSize: '0.8rem', border: 'none'}}>Call</button>
               <button onClick={(e) => { 
