@@ -5,8 +5,8 @@ import styles from './StickyActions.module.css';
 
 export default function StickyActions() {
   const [isVisible, setIsVisible] = useState(false);
-  const [phone, setPhone] = useState(process.env.NEXT_PUBLIC_CONTACT_PHONE || '+918788818163');
-  const [whatsapp, setWhatsapp] = useState(process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || '918788818163');
+  const phone = '+91 87888 18163';
+  const whatsapp = '918788818163';
 
   useEffect(() => {
     const toggleVisibility = () => {
@@ -19,20 +19,6 @@ export default function StickyActions() {
 
     window.addEventListener('scroll', toggleVisibility);
     return () => window.removeEventListener('scroll', toggleVisibility);
-  }, []);
-
-  useEffect(() => {
-    fetch('/api/settings')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.phone_number) {
-          setPhone(data.phone_number);
-        }
-        if (data?.whatsapp_number) {
-          setWhatsapp(data.whatsapp_number);
-        }
-      })
-      .catch((err) => console.error('Failed to load settings in sticky actions:', err));
   }, []);
 
   if (!isVisible) return null;

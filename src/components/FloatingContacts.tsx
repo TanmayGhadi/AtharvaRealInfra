@@ -2,44 +2,15 @@
 
 import { useEffect, useState } from 'react';
 
-let cachedWhatsappNumber: string | null = null;
-let cachedPhoneNumber: string | null = null;
-
 export default function FloatingContacts() {
   const [isVisible, setIsVisible] = useState(false);
-  const [whatsappNumber, setWhatsappNumber] = useState<string>(
-    cachedWhatsappNumber || process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || '918788818163'
-  );
-  const [phoneNumber, setPhoneNumber] = useState<string>(
-    cachedPhoneNumber || process.env.NEXT_PUBLIC_CONTACT_PHONE || '+918788818163'
-  );
+  const whatsappNumber = '918788818163';
+  const phoneNumber = '+91 87888 18163';
 
   useEffect(() => {
     // Small delay to prevent sudden pop-in
     const timeout = setTimeout(() => setIsVisible(true), 1000);
     return () => clearTimeout(timeout);
-  }, []);
-
-  useEffect(() => {
-    if (cachedWhatsappNumber && cachedPhoneNumber) {
-      setWhatsappNumber(cachedWhatsappNumber);
-      setPhoneNumber(cachedPhoneNumber);
-      return;
-    }
-    
-    fetch('/api/settings')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.whatsapp_number) {
-          cachedWhatsappNumber = data.whatsapp_number;
-          setWhatsappNumber(data.whatsapp_number);
-        }
-        if (data?.phone_number) {
-          cachedPhoneNumber = data.phone_number;
-          setPhoneNumber(data.phone_number);
-        }
-      })
-      .catch((err) => console.error('Failed to load settings:', err));
   }, []);
 
   if (!isVisible) return null;
