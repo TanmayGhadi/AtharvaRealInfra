@@ -27,19 +27,19 @@ export default function FloatingContacts() {
       return;
     }
     
-    import('@/lib/supabase').then(({ supabase }) => {
-      supabase.from('site_settings').select('whatsapp_number, phone_number').eq('id', 1).single()
-        .then(({ data }) => {
-          if (data?.whatsapp_number) {
-            cachedWhatsappNumber = data.whatsapp_number;
-            setWhatsappNumber(data.whatsapp_number);
-          }
-          if (data?.phone_number) {
-            cachedPhoneNumber = data.phone_number;
-            setPhoneNumber(data.phone_number);
-          }
-        });
-    });
+    fetch('/api/settings')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.whatsapp_number) {
+          cachedWhatsappNumber = data.whatsapp_number;
+          setWhatsappNumber(data.whatsapp_number);
+        }
+        if (data?.phone_number) {
+          cachedPhoneNumber = data.phone_number;
+          setPhoneNumber(data.phone_number);
+        }
+      })
+      .catch((err) => console.error('Failed to load settings:', err));
   }, []);
 
   if (!isVisible) return null;
@@ -108,7 +108,7 @@ export default function FloatingContacts() {
       
       {/* WhatsApp Button */}
       <a 
-        href={`https://wa.me/${whatsappNumber}?text=Hello%20Atharva%20Real%20Infra,%20I%20have%20an%20inquiry.`} 
+        href={`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=Hello%20Atharva%20Real%20Infra,%20I%20have%20an%20inquiry.`} 
         target="_blank" rel="noopener noreferrer"
         className="floating-whatsapp-btn"
         style={{

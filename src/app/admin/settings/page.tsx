@@ -1,10 +1,11 @@
-import { supabase } from "@/lib/supabase";
+import { getServiceSupabase } from "@/lib/supabase";
 import SettingsForm from "./SettingsForm";
 import styles from "../admin.module.css";
 
 export const revalidate = 0;
 
 export default async function SettingsPage() {
+  const supabase = getServiceSupabase();
   const { data: settings } = await supabase.from('site_settings').select('*').eq('id', 1).single();
 
   return (

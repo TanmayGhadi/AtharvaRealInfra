@@ -1,9 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import styles from "./Footer.module.css";
-import { supabase } from "@/lib/supabase";
+import { getServiceSupabase } from "@/lib/supabase";
 
 export default async function Footer() {
+  const supabase = getServiceSupabase();
   const { data: settings } = await supabase.from('site_settings').select('*').eq('id', 1).single();
 
   return (

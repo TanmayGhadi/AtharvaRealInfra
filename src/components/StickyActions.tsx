@@ -5,8 +5,8 @@ import styles from './StickyActions.module.css';
 
 export default function StickyActions() {
   const [isVisible, setIsVisible] = useState(false);
-  const phone = process.env.NEXT_PUBLIC_CONTACT_PHONE || '+918788818163';
-  const whatsapp = process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || '918788818163';
+  const [phone, setPhone] = useState(process.env.NEXT_PUBLIC_CONTACT_PHONE || '+918788818163');
+  const [whatsapp, setWhatsapp] = useState(process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || '918788818163');
 
   useEffect(() => {
     const toggleVisibility = () => {
@@ -21,6 +21,20 @@ export default function StickyActions() {
     return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
 
+  useEffect(() => {
+    fetch('/api/settings')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.phone_number) {
+          setPhone(data.phone_number);
+        }
+        if (data?.whatsapp_number) {
+          setWhatsapp(data.whatsapp_number);
+        }
+      })
+      .catch((err) => console.error('Failed to load settings in sticky actions:', err));
+  }, []);
+
   if (!isVisible) return null;
 
   return (
@@ -28,7 +42,7 @@ export default function StickyActions() {
       <a href={`tel:${phone.replace(/\s+/g, '')}`} className={`${styles.actionButton} ${styles.callButton}`} aria-label="Call Us">
         📞
       </a>
-      <a href={`https://wa.me/${whatsapp}?text=Hello%20Atharva%20Real%20Infra,%20I%20am%20interested%20in%20your%20properties.`} target="_blank" rel="noopener noreferrer" className={`${styles.actionButton} ${styles.whatsappButton}`} aria-label="WhatsApp Us">
+      <a href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}?text=Hello%20Atharva%20Real%20Infra,%20I%20am%20interested%20in%20your%20properties.`} target="_blank" rel="noopener noreferrer" className={`${styles.actionButton} ${styles.whatsappButton}`} aria-label="WhatsApp Us">
         💬
       </a>
     </div>

@@ -18,15 +18,15 @@ export default function PropertyCard({ prop, index = 0, styleClass = '' }: { pro
       return;
     }
     
-    import('@/lib/supabase').then(({ supabase }) => {
-      supabase.from('site_settings').select('whatsapp_number').eq('id', 1).single()
-        .then(({ data }) => {
-          if (data?.whatsapp_number) {
-            cachedWhatsappNumber = data.whatsapp_number;
-            setWhatsappNumber(data.whatsapp_number);
-          }
-        });
-    });
+    fetch('/api/settings')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.whatsapp_number) {
+          cachedWhatsappNumber = data.whatsapp_number;
+          setWhatsappNumber(data.whatsapp_number);
+        }
+      })
+      .catch((err) => console.error('Failed to load settings in card:', err));
   }, []);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
@@ -150,7 +150,7 @@ export default function PropertyCard({ prop, index = 0, styleClass = '' }: { pro
                 e.preventDefault(); 
                 e.stopPropagation(); 
                 const text = `Hello Atharva Real Infra,\n\nI am interested in the following property:\n\nProperty Name:\n${prop.title}\n\nProperty ID:\n${prop.id}\n\nLocation:\n${prop.village || ''}, ${prop.taluka || ''}\n\nPlease share more details.`;
-                window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`, '_blank'); 
+                window.open(`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(text)}`, '_blank'); 
               }}
                  className="btn-outline" 
                  style={{
