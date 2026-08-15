@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase';
 export default function PropertyFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isOpen, setIsOpen] = useState(false);
 
   const [locationHierarchy, setLocationHierarchy] = useState<Record<string, Record<string, string[]>>>({});
 
@@ -76,77 +77,90 @@ export default function PropertyFilters() {
     const sort = searchParams.get('sort');
     if (sort) params.set('sort', sort);
 
+    setIsOpen(false);
     router.push(`/properties?${params.toString()}`);
   };
 
   return (
-    <aside className={styles.sidebar} style={{ maxHeight: '80vh', overflowY: 'auto' }}>
-      <div className={styles.filterGroup}>
-        <h4>District</h4>
-        {Object.keys(locationHierarchy).map(d => (
-          <label key={d}>
-            <input type="checkbox" checked={filters.district.includes(d)} onChange={() => handleChange('district', d)} /> {d}
-          </label>
-        ))}
-      </div>
+    <>
+      <button 
+        className={styles.mobileFilterBtn} 
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {isOpen ? "✕ Close Filters" : "⚙ Filter Properties"}
+      </button>
 
-      <div className={styles.filterGroup}>
-        <h4>Taluka</h4>
-        {Object.values(locationHierarchy).flatMap(t => Object.keys(t)).filter((value, index, self) => self.indexOf(value) === index).map(loc => (
-          <label key={loc}>
-            <input type="checkbox" checked={filters.taluka.includes(loc)} onChange={() => handleChange('taluka', loc)} /> {loc}
-          </label>
-        ))}
-      </div>
-      
-      <div className={styles.filterGroup}>
-        <h4>Property Type</h4>
-        {['Agricultural', 'Farmhouse', 'Commercial', 'Investment'].map(type => (
-          <label key={type}>
-            <input type="checkbox" checked={filters.type.includes(type)} onChange={() => handleChange('type', type)} /> {type}
-          </label>
-        ))}
-      </div>
+      <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
+        <div className={styles.filterGroup}>
+          <h4>District</h4>
+          {(Object.keys(locationHierarchy).length > 0 ? Object.keys(locationHierarchy) : ['Sindhudurg', 'Ratnagiri', 'Raigad']).map(d => (
+            <label key={d}>
+              <input type="checkbox" checked={filters.district.includes(d)} onChange={() => handleChange('district', d)} /> {d}
+            </label>
+          ))}
+        </div>
 
-      <div className={styles.filterGroup}>
-        <h4>Status</h4>
-        {['Available', 'Reserved', 'Sold'].map(st => (
-          <label key={st}>
-            <input type="checkbox" checked={filters.status.includes(st)} onChange={() => handleChange('status', st)} /> {st}
-          </label>
-        ))}
-      </div>
+        <div className={styles.filterGroup}>
+          <h4>Taluka</h4>
+          {(Object.keys(locationHierarchy).length > 0 
+            ? Object.values(locationHierarchy).flatMap(t => Object.keys(t)).filter((value, index, self) => self.indexOf(value) === index)
+            : ['Dodamarg', 'Sawantwadi', 'Vengurla', 'Kudal', 'Kankavli', 'Malvan', 'Vaibhavwadi', 'Devgad']
+          ).map(loc => (
+            <label key={loc}>
+              <input type="checkbox" checked={filters.taluka.includes(loc)} onChange={() => handleChange('taluka', loc)} /> {loc}
+            </label>
+          ))}
+        </div>
+        
+        <div className={styles.filterGroup}>
+          <h4>Property Type</h4>
+          {['Agricultural', 'Farmhouse', 'Commercial', 'Investment'].map(type => (
+            <label key={type}>
+              <input type="checkbox" checked={filters.type.includes(type)} onChange={() => handleChange('type', type)} /> {type}
+            </label>
+          ))}
+        </div>
 
-      <div className={styles.filterGroup}>
-        <h4>Budget</h4>
-        <select value={filters.budget} onChange={(e) => handleChange('budget', e.target.value, false)} style={{width:'100%', padding:'0.5rem', background:'var(--bg-primary)', color:'white', border: '1px solid var(--border-color)', borderRadius: '4px'}}>
-          <option value="any">Any Price</option>
-          <option value="under-1cr">Under ₹1 Cr</option>
-          <option value="1cr-3cr">₹1 Cr - ₹3 Cr</option>
-          <option value="3cr-5cr">₹3 Cr - ₹5 Cr</option>
-          <option value="above-5cr">₹5 Cr +</option>
-        </select>
-      </div>
+        <div className={styles.filterGroup}>
+          <h4>Status</h4>
+          {['Available', 'Reserved', 'Sold'].map(st => (
+            <label key={st}>
+              <input type="checkbox" checked={filters.status.includes(st)} onChange={() => handleChange('status', st)} /> {st}
+            </label>
+          ))}
+        </div>
 
-      <div className={styles.filterGroup}>
-        <h4>Area</h4>
-        <select value={filters.area} onChange={(e) => handleChange('area', e.target.value, false)} style={{width:'100%', padding:'0.5rem', background:'var(--bg-primary)', color:'white', border: '1px solid var(--border-color)', borderRadius: '4px'}}>
-          <option value="any">Any Area</option>
-          <option value="under-1">Under 1 Acre</option>
-          <option value="1-5">1 - 5 Acres</option>
-          <option value="5-10">5 - 10 Acres</option>
-          <option value="above-10">10+ Acres</option>
-        </select>
-      </div>
+        <div className={styles.filterGroup}>
+          <h4>Budget</h4>
+          <select value={filters.budget} onChange={(e) => handleChange('budget', e.target.value, false)} className="form-select">
+            <option value="any">Any Price</option>
+            <option value="under-1cr">Under ₹ 1 Cr</option>
+            <option value="1cr-3cr">₹ 1 Cr - ₹ 3 Cr</option>
+            <option value="3cr-5cr">₹ 3 Cr - ₹ 5 Cr</option>
+            <option value="above-5cr">Above ₹ 5 Cr</option>
+          </select>
+        </div>
 
-      <div className={styles.filterGroup}>
-        <h4>Highlights</h4>
-        <label><input type="checkbox" checked={filters.featured} onChange={(e) => handleChange('featured', e.target.checked, false)} /> Featured Only</label>
-        <label><input type="checkbox" checked={filters.near_airport} onChange={(e) => handleChange('near_airport', e.target.checked, false)} /> Near Airport</label>
-        <label><input type="checkbox" checked={filters.near_nh66} onChange={(e) => handleChange('near_nh66', e.target.checked, false)} /> Near NH66</label>
-      </div>
-      
-      <button onClick={applyFilters} className="btn-primary" style={{width: '100%', marginTop: '1rem'}}>Apply Filters</button>
-    </aside>
+        <div className={styles.filterGroup}>
+          <h4>Area</h4>
+          <select value={filters.area} onChange={(e) => handleChange('area', e.target.value, false)} className="form-select">
+            <option value="any">Any Area</option>
+            <option value="under-1">Under 1 Acre</option>
+            <option value="1-5">1 - 5 Acres</option>
+            <option value="5-10">5 - 10 Acres</option>
+            <option value="above-10">10+ Acres</option>
+          </select>
+        </div>
+
+        <div className={styles.filterGroup}>
+          <h4>Highlights</h4>
+          <label><input type="checkbox" checked={filters.featured} onChange={(e) => handleChange('featured', e.target.checked, false)} /> Featured Only</label>
+          <label><input type="checkbox" checked={filters.near_airport} onChange={(e) => handleChange('near_airport', e.target.checked, false)} /> Near Mopa Airport</label>
+          <label><input type="checkbox" checked={filters.near_nh66} onChange={(e) => handleChange('near_nh66', e.target.checked, false)} /> Near NH-66</label>
+        </div>
+        
+        <button onClick={applyFilters} className="btn-primary" style={{ width: '100%', marginTop: '1rem' }}>Apply Filters</button>
+      </aside>
+    </>
   );
 }

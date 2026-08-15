@@ -68,7 +68,7 @@ async function seed() {
     company_name: 'Atharva Real Infra',
     phone_number: '+91 87888 18163',
     whatsapp_number: '918788818163',
-    email_address: 'info@atharvarealinfra.com',
+    email_address: 'ds200784@atharvarealinfra.com',
     office_address: 'Sindhudurg, Maharashtra'
   });
 

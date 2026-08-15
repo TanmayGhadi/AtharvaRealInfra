@@ -6,8 +6,9 @@ import { redirect } from 'next/navigation';
 export async function loginAction(formData: FormData) {
   const password = formData.get('password') as string;
 
-  // Extremely simple password auth for prototype
-  if (password === 'Atharva@2026') {
+  // Password auth for admin portal
+  const validPassword = process.env.ADMIN_PASSWORD || 'atharva12';
+  if (password === validPassword) {
     (await cookies()).set('admin_authenticated', 'true', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

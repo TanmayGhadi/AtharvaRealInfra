@@ -1,13 +1,15 @@
 .propertiesPage {
   min-height: 100vh;
-  padding-top: 80px; /* Account for navbar */
+  padding-top: 90px;
+  background-color: var(--warm-ivory, #F5F1E8);
 }
 
 .pageHeader {
-  background: linear-gradient(rgba(10,10,10,0.8), rgba(10,10,10,0.9)), url('https://images.unsplash.com/photo-1505843513577-22bb7d21e455?ixlib=rb-4.0.3&auto=format&fit=crop&w=1332&q=80') center/cover;
-  padding: 6rem 5%;
+  background-color: var(--deep-forest, #0C241C);
+  color: #F7F4EC;
+  padding: 4.5rem 5% 3.5rem;
   text-align: center;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  border-bottom: 1px solid rgba(201, 162, 78, 0.2);
 }
 
 .headerContent {
@@ -15,63 +17,79 @@
   margin: 0 auto;
 }
 
+.headerSubtitle {
+  color: var(--muted-champagne, #C9A24E);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
 .headerContent h1 {
-  font-size: 3.5rem;
-  color: var(--accent-gold);
-  margin-bottom: 1rem;
+  font-family: var(--font-serif);
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  color: #F7F4EC;
+  margin-bottom: 0.85rem;
 }
 
 .headerContent p {
-  font-size: 1.2rem;
-  color: var(--text-secondary);
+  font-size: 1.05rem;
+  color: rgba(247, 244, 236, 0.8);
+  line-height: 1.6;
 }
 
 .layout {
   display: flex;
-  gap: 3rem;
+  gap: 2.5rem;
   align-items: flex-start;
+  padding-block: 3rem;
 }
 
 .sidebar {
-  width: 300px;
+  width: 290px;
   flex-shrink: 0;
-  background: var(--bg-card);
-  padding: 2rem;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
+  background: var(--soft-cream, #EDE7DA);
+  padding: 1.75rem;
+  border-radius: 10px;
+  border: 1px solid rgba(18, 49, 40, 0.12);
   position: sticky;
-  top: 100px;
+  top: 110px;
+  box-shadow: 0 4px 15px rgba(18, 49, 40, 0.05);
 }
 
 .filterGroup {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .filterGroup h4 {
   font-family: var(--font-sans);
-  font-size: 1.1rem;
-  margin-bottom: 1rem;
-  color: var(--accent-gold);
-  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-  padding-bottom: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 0.85rem;
+  color: var(--primary-forest, #123128);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid rgba(18, 49, 40, 0.12);
+  padding-bottom: 0.4rem;
 }
 
 .filterGroup label {
-  display: block;
-  margin-bottom: 0.75rem;
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
+  margin-bottom: 0.55rem;
+  font-size: 0.88rem;
+  color: var(--text-primary, #17231F);
+  cursor: pointer;
 }
 
-.filterGroup input[type="checkbox"],
-.filterGroup input[type="radio"] {
-  accent-color: var(--accent-gold);
-  width: 16px;
-  height: 16px;
+.filterGroup input[type="checkbox"] {
+  accent-color: var(--primary-forest, #123128);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
 }
 
 .mainContent {
@@ -84,28 +102,57 @@
   align-items: center;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid rgba(18, 49, 40, 0.12);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.resultsCount {
+  font-size: 0.9rem;
+  color: var(--text-secondary, #5D665F);
+  font-weight: 500;
 }
 
 .sortSelect {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
+  background: #FFFFFF;
+  border: 1px solid rgba(18, 49, 40, 0.2);
+  color: var(--text-primary, #17231F);
   padding: 0.5rem 1rem;
   border-radius: 4px;
-  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  outline: none;
   cursor: pointer;
+}
+
+.mobileFilterBtn {
+  display: none;
+  background-color: var(--primary-forest, #123128);
+  color: #F7F4EC;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  width: 100%;
 }
 
 @media (max-width: 992px) {
   .layout {
     flex-direction: column;
   }
+  .mobileFilterBtn {
+    display: block;
+  }
   .sidebar {
     width: 100%;
     position: static;
+    display: none;
   }
-  .headerContent h1 {
-    font-size: 2.5rem;
+  .sidebarOpen {
+    display: block !important;
   }
 }

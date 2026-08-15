@@ -1,9 +1,8 @@
 import Link from "next/link";
-import homeStyles from "../../page.module.css";
 import styles from "./location.module.css";
 import { getServiceSupabase } from "@/lib/supabase";
 import PropertyCard from "@/components/PropertyCard";
-
+import LocationsSection from "@/components/LocationsSection";
 import type { Metadata } from "next";
 
 export const revalidate = 0;
@@ -12,8 +11,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const resolvedParams = await params;
   const locationName = resolvedParams.slug.charAt(0).toUpperCase() + resolvedParams.slug.slice(1);
   return {
-    title: `Land & Property Investment in ${locationName}`,
-    description: `Explore premium agricultural plots, farm land for sale, and NA plots in ${locationName}. Secure your real estate investment near Goa and Mopa Airport with Atharva Real Infra.`,
+    title: `Land & Property Investment in ${locationName} | Atharva Real Infra`,
+    description: `Explore premium agricultural land, farmhouses, and NA plots in ${locationName}, Sindhudurg. Verified real estate investments near Goa and Mopa Airport.`,
   };
 }
 
@@ -35,51 +34,83 @@ export default async function LocationPage({ params }: { params: Promise<{ slug:
         style={{ backgroundImage: `url('/${resolvedParams.slug.toLowerCase()}.png')` }}
       >
         <div className={styles.heroOverlay}>
+          <span className={styles.locationSubtitle}>LOCATION OVERVIEW</span>
           <h1>{locationName}</h1>
-          <p>The emerging hub of luxury real estate in Sindhudurg</p>
+          <p>Emerging high-appreciation land investment destination in Sindhudurg</p>
         </div>
       </div>
       
       <div className="section-container">
-        <div className="grid-2" style={{marginBottom: '4rem'}}>
+        <div className="grid-2" style={{ marginBottom: '4rem', alignItems: 'center' }}>
           <div>
-            <h2 className="section-title" style={{textAlign: 'left'}}>Area Overview</h2>
-            <p className="mb-2" style={{fontSize: '1.1rem', lineHeight: '1.8'}}>
-              {locationName} is rapidly transforming into a prime investment destination. Known for its lush green landscapes, serene environment, and proximity to major infrastructure projects, it offers the perfect blend of natural beauty and modern connectivity.
+            <span className="section-subtitle">Regional Dynamics</span>
+            <h2 className="section-title" style={{ textAlign: 'left' }}>Strategic Land Investment in {locationName}</h2>
+            <p className="text-muted" style={{ fontSize: '1.02rem', lineHeight: '1.7', marginBottom: '1rem' }}>
+              {locationName} offers exceptional long-term land opportunities. With rich natural surroundings, excellent road infrastructure, and seamless access to Mopa International Airport, it has become a preferred destination for investors.
             </p>
-            <p style={{fontSize: '1.1rem', lineHeight: '1.8'}}>
-              Whether you are looking to build a luxurious private estate, a boutique resort, or simply seeking high-return land investments, {locationName} provides unparalleled opportunities with clear titles and seamless acquisition processes.
+            <p className="text-muted" style={{ fontSize: '1.02rem', lineHeight: '1.7' }}>
+              Whether you are planning an agricultural estate, a personal retreat, or seeking pure capital appreciation, {locationName} provides clear title land with complete transparency.
             </p>
           </div>
           <div className={styles.statsCard}>
-            <h3>Investment Potential</h3>
+            <h3>{locationName} Highlights</h3>
             <ul>
-              <li><strong>Avg Appreciation:</strong> 25% YoY</li>
-              <li><strong>Proximity to Airport:</strong> 30 Mins</li>
-              <li><strong>Infrastructure:</strong> Upcoming Highway Touch</li>
-              <li><strong>Suitability:</strong> Farmhouses, Resorts, Agriculture</li>
+              <li><span><strong>Appreciation Forecast:</strong></span> <span>25%+ YoY</span></li>
+              <li><span><strong>Mopa Airport Access:</strong></span> <span>25 - 45 Mins</span></li>
+              <li><span><strong>Highway Connectivity:</strong></span> <span>NH-66 Touch</span></li>
+              <li><span><strong>Primary Land Types:</strong></span> <span>Agricultural & NA Plots</span></li>
             </ul>
           </div>
         </div>
 
-        <h2 className="section-title">Available Properties in {locationName}</h2>
+        <span className="section-subtitle">Available Opportunities</span>
+        <h2 className="section-title" style={{ marginBottom: '2.5rem' }}>Land Listings in {locationName}</h2>
+        
         <div className="grid-3">
           {properties && properties.length > 0 ? properties.map((prop: any, idx: number) => (
             <PropertyCard key={prop.id} prop={prop} index={idx} />
           )) : (
-            <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-secondary)' }}>
-              No properties currently available in {locationName}. Please check back later or contact us for off-market listings.
-            </p>
+            <div style={{ 
+              gridColumn: '1 / -1', 
+              textAlign: 'center', 
+              padding: '4rem 2rem', 
+              backgroundColor: 'var(--soft-cream, #EDE7DA)',
+              borderRadius: '8px',
+              border: '1px solid rgba(18, 49, 40, 0.12)'
+            }}>
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', color: 'var(--primary-forest)', marginBottom: '0.5rem' }}>
+                No Active Public Listings in {locationName}
+              </h3>
+              <p className="text-muted" style={{ marginBottom: '1.5rem' }}>
+                Contact our team for off-market land holdings and upcoming parcels in this region.
+              </p>
+              <Link href="/contact" className="btn-primary">
+                Enquire for Off-Market Parcels
+              </Link>
+            </div>
           )}
         </div>
 
-        {/* Contact CTA */}
-        <div style={{ marginTop: '5rem', padding: '4rem 2rem', background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid rgba(212,175,55,0.2)', textAlign: 'center' }}>
-          <h2 style={{ marginBottom: '1rem' }}>Interested in {locationName}?</h2>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
-            Our advisors have exclusive off-market properties and deep insights into the {locationName} region. Contact us to find your perfect investment.
+        {/* More Locations Selector */}
+        <LocationsSection activeLocation={locationName} />
+
+        {/* Advisory CTA */}
+        <div style={{ 
+          marginTop: '5rem', 
+          padding: '4rem 2.5rem', 
+          backgroundColor: 'var(--deep-forest, #0C241C)', 
+          color: '#F7F4EC',
+          borderRadius: '10px', 
+          textAlign: 'center',
+          border: '1px solid rgba(201, 162, 78, 0.3)'
+        }}>
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.2rem', marginBottom: '1rem', color: '#F7F4EC' }}>
+            Interested in {locationName}?
+          </h2>
+          <p style={{ color: 'rgba(247, 244, 236, 0.8)', marginBottom: '2rem', maxWidth: '640px', margin: '0 auto 2rem auto', lineHeight: '1.6' }}>
+            Our regional land specialists provide site visits, 7/12 title verifications, and personalized guidance for {locationName}.
           </p>
-          <Link href="/contact" className="btn-primary" style={{ display: 'inline-block' }}>Consult an Advisor</Link>
+          <Link href="/contact" className="btn-accent">Consult an Advisor</Link>
         </div>
       </div>
     </div>

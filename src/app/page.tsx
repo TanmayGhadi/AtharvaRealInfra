@@ -2,12 +2,14 @@ import Link from "next/link";
 import styles from "./page.module.css";
 import { getServiceSupabase } from "@/lib/supabase";
 import PropertyCard from "@/components/PropertyCard";
-import HomeFilter from "@/components/HomeFilter"; // We will create this
+import HomeFilter from "@/components/HomeFilter";
+import HeroVideo from "@/components/HeroVideo";
+import LocationsSection from "@/components/LocationsSection";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Premium Agricultural Land Investment | Atharva Real Infra",
-  description: "Invest in premium agricultural and NA plots near Sindhudurg, Mopa Airport and Goa. Trusted land investment opportunities in Maharashtra.",
+  description: "Invest in premium agricultural land and NA plots in Sindhudurg, Konkan, near Mopa Airport and Goa. Trusted land investment opportunities.",
   alternates: { canonical: 'https://www.atharvarealinfra.com' }
 };
 
@@ -23,7 +25,6 @@ export default async function Home() {
     
   if (error) console.error("Error fetching featured properties:", error);
 
-  // Fallback if no featured properties
   if (!featuredProperties || featuredProperties.length === 0) {
     const { data: latest } = await supabase
       .from('properties')
@@ -35,38 +36,49 @@ export default async function Home() {
 
   return (
     <div className={styles.home}>
-      {/* Hero Section */}
+      {/* Hero Section with Drone Video Background */}
       <section className={styles.hero}>
+        <HeroVideo className={styles.heroVideo} />
+        
         <div className={styles.heroOverlay}></div>
+
         <div className={styles.heroContent}>
-          <h1 className="animate-fade-in gold-gradient-text">
-            Invest in Land.<br/>Secure Your Future.
+          <h1 className="animate-fade-in">
+            Invest in Land.<br />
+            Secure Your <span className={styles.heroHeadlineAccent}>Future.</span>
           </h1>
           <p className="animate-fade-in-1">
-            Premium agricultural land and NA plots near Goa and Mopa Airport. Experience luxury real estate investment tailored for discerning investors in Sindhudurg.
+            Premium agricultural land and NA plots across Sindhudurg and Konkan, strategically positioned near Goa and Mopa Airport.
           </p>
           <div className={`${styles.heroActions} animate-fade-in-2`}>
-            <Link href="/properties" className={`btn-primary ${styles.heroCta}`}>Explore Properties</Link>
-            <Link href="/contact" className="btn-outline">Consult an Expert</Link>
+            <Link href="/properties" className={styles.heroCtaPrimary}>
+              EXPLORE PROPERTIES
+            </Link>
+            <Link href="/contact" className={styles.heroCtaSecondary}>
+              CONSULT AN EXPERT
+            </Link>
           </div>
         </div>
 
         {/* Scroll indicator */}
         <div className={`${styles.scrollIndicator} animate-fade-in-3`}>
           <div className={styles.scrollLine}></div>
-          <span>Scroll to Explore</span>
+          <span>SCROLL TO EXPLORE</span>
         </div>
       </section>
 
-      {/* Quick Search Bar */}
-      <section className="section-container" style={{ paddingTop: '4rem', paddingBottom: '0', display: 'flex', justifyContent: 'center' }}>
+      {/* Hero Search Panel Container */}
+      <section className="section-container" style={{ paddingTop: '3.5rem', paddingBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
         <HomeFilter />
       </section>
 
-      {/* Featured Properties */}
-      <section className="section-container" style={{ paddingTop: '4rem' }}>
-        <span className="section-subtitle reveal">Exclusive Listings</span>
-        <h2 className="section-title reveal stagger-1">Featured Properties</h2>
+      {/* Featured Properties Section */}
+      <section className="section-container" style={{ paddingTop: '4rem', paddingBottom: '5rem' }}>
+        <span className="section-subtitle reveal">Handpicked Opportunities</span>
+        <h2 className="section-title reveal stagger-1">Featured Land Opportunities</h2>
+        <p className="text-muted reveal stagger-2" style={{ marginBottom: '2.5rem', maxWidth: '600px' }}>
+          Explore verified agricultural, commercial, and NA plots offering high long-term appreciation in prime Konkan corridors.
+        </p>
 
         <div className="grid-3">
           {featuredProperties && featuredProperties.length > 0 ? (
@@ -74,12 +86,13 @@ export default async function Home() {
               <PropertyCard key={prop.id} prop={prop} index={idx} />
             ))
           ) : (
-            <p className="text-secondary" style={{ gridColumn: '1 / -1', textAlign: 'center' }}>
-              No properties available yet — check back soon.
+            <p className="text-muted" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '3rem' }}>
+              No featured properties available at the moment.
             </p>
           )}
         </div>
-        <div className="text-center" style={{marginTop: '3rem'}}>
+        
+        <div className="text-center" style={{ marginTop: '3.5rem' }}>
           <Link href="/properties" className="btn-primary reveal">View All Properties</Link>
         </div>
       </section>
@@ -87,64 +100,71 @@ export default async function Home() {
       {/* Stats Bar */}
       <section className={styles.statsBar}>
         {[
-          { value: '300%', label: 'Expected Appreciation' },
-          { value: '50+',  label: 'Projects Delivered' },
-          { value: '100%', label: 'Legal Transparency' },
-          { value: '24/7', label: 'Consultant Support' },
+          { value: '300%', label: 'Expected 5-Yr Appreciation' },
+          { value: '50+',  label: 'Successful Land Deals' },
+          { value: '100%', label: 'Legal & Title Guarantee' },
+          { value: '24/7', label: 'Local Advisory Support' },
         ].map((stat, i) => (
           <div key={stat.label} className={`${styles.statItem} reveal stagger-${i + 1}`}>
-            <div className={`${styles.statValue} gold-gradient-text`}>{stat.value}</div>
+            <div className={styles.statValue}>{stat.value}</div>
             <div className={styles.statLabel}>{stat.label}</div>
           </div>
         ))}
       </section>
 
-      {/* Per Acre Insights */}
-      <section className="section-container" style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
-        <div style={{ background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(10, 10, 10, 0.8) 100%)', borderRadius: '16px', padding: '3rem', border: '1px solid rgba(212, 175, 55, 0.2)' }} className="reveal">
-          <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
-            <span className="section-subtitle">Smart Investment</span>
+      {/* Per Acre Value Insights */}
+      <section className="section-container" style={{ paddingTop: '5rem', paddingBottom: '5rem' }}>
+        <div style={{ 
+          backgroundColor: 'var(--soft-cream, #EDE7DA)', 
+          borderRadius: '12px', 
+          padding: '3.5rem 2.5rem', 
+          border: '1px solid rgba(18, 49, 40, 0.12)' 
+        }} className="reveal">
+          <div style={{ textAlign: 'center', maxWidth: '820px', margin: '0 auto' }}>
+            <span className="section-subtitle">Smart Land Investment</span>
             <h2 className="section-title">Transparent Per-Acre Pricing</h2>
-            <p className="text-secondary" style={{ marginBottom: '2rem', lineHeight: '1.6' }}>
-              We believe in complete transparency. Our platform automatically calculates and displays the exact <strong style={{ color: 'var(--accent-gold)'}}>price per acre</strong> for all agricultural and investment properties. Compare true value across different regions of Sindhudurg without the guesswork.
+            <p className="text-muted" style={{ marginBottom: '2.5rem', lineHeight: '1.7' }}>
+              We believe in complete financial clarity. Our listings provide normalized <strong style={{ color: 'var(--primary-forest)' }}>price per acre calculations</strong> so you can compare genuine value across different talukas without guesswork.
             </p>
-            <div style={{ display: 'flex', gap: '2rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', flex: '1', minWidth: '200px' }}>
-                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🧮</div>
-                <h4 style={{ color: 'var(--accent-gold)', marginBottom: '0.5rem' }}>Auto-Calculated</h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Instantly see the per-acre value on every property listing.</p>
+            <div className="grid-3" style={{ textAlign: 'left' }}>
+              <div style={{ backgroundColor: '#FFFFFF', padding: '1.75rem', borderRadius: '8px', border: '1px solid rgba(18, 49, 40, 0.08)' }}>
+                <div style={{ fontSize: '1.8rem', marginBottom: '0.75rem' }}>🧮</div>
+                <h4 style={{ color: 'var(--primary-forest)', marginBottom: '0.5rem', fontSize: '1.05rem' }}>Automated Math</h4>
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>Instantly view accurate per-acre rates alongside total package prices.</p>
               </div>
-              <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', flex: '1', minWidth: '200px' }}>
-                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⚖️</div>
-                <h4 style={{ color: 'var(--accent-gold)', marginBottom: '0.5rem' }}>Easy Comparison</h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Compare 5-acre farms vs 20-acre estates on an even playing field.</p>
+              <div style={{ backgroundColor: '#FFFFFF', padding: '1.75rem', borderRadius: '8px', border: '1px solid rgba(18, 49, 40, 0.08)' }}>
+                <div style={{ fontSize: '1.8rem', marginBottom: '0.75rem' }}>⚖️</div>
+                <h4 style={{ color: 'var(--primary-forest)', marginBottom: '0.5rem', fontSize: '1.05rem' }}>Direct Comparison</h4>
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>Compare small NA plots against multi-acre agricultural land transparently.</p>
               </div>
-              <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', flex: '1', minWidth: '200px' }}>
-                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>💡</div>
-                <h4 style={{ color: 'var(--accent-gold)', marginBottom: '0.5rem' }}>Value Insights</h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Spot undervalued opportunities faster with normalized pricing.</p>
+              <div style={{ backgroundColor: '#FFFFFF', padding: '1.75rem', borderRadius: '8px', border: '1px solid rgba(18, 49, 40, 0.08)' }}>
+                <div style={{ fontSize: '1.8rem', marginBottom: '0.75rem' }}>💡</div>
+                <h4 style={{ color: 'var(--primary-forest)', marginBottom: '0.5rem', fontSize: '1.05rem' }}>Value Discovery</h4>
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>Identify high-growth corridors before market prices adjust.</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Investment Opportunities */}
+      {/* Investment Potential Section */}
       <section className={styles.darkSection}>
         <div className="section-container">
           <div className="grid-2 items-center">
-            <div className="reveal reveal-left">
-              <span className="section-subtitle">Why Sindhudurg?</span>
-              <h2 className="section-title" style={{textAlign: 'left'}}>Unprecedented<br/>Investment Potential</h2>
-              <p className="mb-2 text-secondary">
-                With the new Mopa International Airport and rapid infrastructure development, Sindhudurg is poised to become the next major luxury real estate hub. Secure your piece of paradise before valuations skyrocket.
+            <div className="reveal">
+              <span className="section-subtitle">Regional Potential</span>
+              <h2 className="section-title" style={{ textAlign: 'left', color: '#F7F4EC' }}>
+                Why Invest in<br/>Sindhudurg & Konkan?
+              </h2>
+              <p className="text-muted" style={{ color: 'rgba(247, 244, 236, 0.8)', marginBottom: '1.5rem', lineHeight: '1.7' }}>
+                With Mopa International Airport operational and ongoing expansion of the NH-66 highway corridor, Sindhudurg is witnessing unprecedented demand for agricultural estates, farmhouses, and commercial plots.
               </p>
               <ul className={styles.featureList}>
                 {[
-                  '15 mins from Mopa International Airport',
-                  'Next to proposed NH-66 Mumbai-Goa Highway',
-                  'High appreciation guaranteed',
-                  '100% Clear title properties',
+                  'Strategic proximity to Mopa Airport & North Goa border',
+                  'Excellent connectivity via NH-66 Mumbai-Goa Highway',
+                  '100% verified legal titles and documentation',
+                  'End-to-end assistance from local land specialists',
                 ].map((item, i) => (
                   <li key={i} className={`reveal stagger-${i + 1}`}>
                     <span className={styles.checkIcon}>✓</span> {item}
@@ -152,15 +172,16 @@ export default async function Home() {
                 ))}
               </ul>
             </div>
-            <div className={`${styles.investmentGrid} reveal reveal-right`}>
+            
+            <div className={styles.investmentGrid}>
               {[
-                { value: '300%', label: 'Expected Appreciation in 5 Years' },
-                { value: '50+',  label: 'Premium Projects Delivered' },
-                { value: '100%', label: 'Legal Transparency' },
-                { value: '24/7', label: 'Dedicated Consultant Support' },
+                { value: '300%', label: '5-Yr Appreciation Forecast' },
+                { value: '50+',  label: 'Verified Projects' },
+                { value: '100%', label: 'Legal Due Diligence' },
+                { value: '24/7', label: 'Client Support' },
               ].map((card, i) => (
-                <div key={i} className={`${styles.investmentCard} glass-panel stagger-${i + 1}`}>
-                  <h4 className="text-gold">{card.value}</h4>
+                <div key={i} className={styles.investmentCard}>
+                  <h4>{card.value}</h4>
                   <p>{card.label}</p>
                 </div>
               ))}
@@ -169,10 +190,10 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Locations */}
-      <section className="section-container">
-        <span className="section-subtitle reveal">Prime Regions</span>
-        <h2 className="section-title reveal stagger-1">Explore Locations</h2>
+      {/* Prime Locations Grid */}
+      <section className="section-container" style={{ paddingTop: '5rem', paddingBottom: '5rem' }}>
+        <span className="section-subtitle reveal">Prime Micro-Markets</span>
+        <h2 className="section-title reveal stagger-1">Explore Featured Regions</h2>
         <div className="grid-4">
           {[
             { name: 'Kankavli',   img: '/loc1.png' },
@@ -196,47 +217,20 @@ export default async function Home() {
           ))}
         </div>
 
-        {/* More Locations */}
-        <div style={{ marginTop: '3rem', textAlign: 'center' }}>
-          <h3 className="reveal" style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>More Locations We Serve</h3>
-          <div className="reveal stagger-2" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>
-            {['Rajapur', 'Mandangad', 'Shrivardhan', 'Mangaon', 'Roha', 'Kudal', 'Vengurla'].map((loc) => (
-              <Link 
-                key={loc} 
-                href={`/properties?taluka=${loc}`}
-                className={styles.locationChip}
-              >
-                {loc}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonial Marquee */}
-      <section className={styles.testimonialStrip}>
-        <div className={styles.testimonialTrack}>
-          {[
-            '"Best investment decision of my life. The land I bought doubled in value within 2 years." — Rajesh M., Pune',
-            '"Atharva Real Infra handled everything seamlessly. Transparent, professional, and trustworthy." — Priya S., Mumbai',
-            '"Got a beautiful farmhouse plot in Dodamarg. The team was with us every step of the way." — Amit K., Kolhapur',
-          ].map((t, i) => (
-            <div key={i} className={styles.testimonialItem}>
-              <span className={styles.quoteIcon}>"</span>
-              {t}
-            </div>
-          ))}
-        </div>
+        {/* Additional Location Chips */}
+        <LocationsSection />
       </section>
 
       {/* CTA Section */}
       <section className={styles.ctaSection}>
         <div className="section-container text-center">
-          <h2 className="reveal">Ready to Build Your Legacy?</h2>
-          <p className="text-secondary reveal stagger-1" style={{maxWidth: '600px', margin: '0 auto 2rem auto'}}>
-            Schedule a private consultation with our luxury property advisors to discover exclusive off-market opportunities.
+          <h2 className="reveal">Let's Discuss Your Land Investment</h2>
+          <p className="text-muted reveal stagger-1" style={{ color: 'rgba(247, 244, 236, 0.8)', maxWidth: '600px', margin: '0 auto 2.25rem auto', lineHeight: '1.6' }}>
+            Schedule a private consultation with our regional land advisory team to explore curated opportunities.
           </p>
-          <Link href="/contact" className={`btn-primary ${styles.heroCta} reveal stagger-2`}>Schedule Consultation</Link>
+          <Link href="/contact" className="btn-accent reveal stagger-2">
+            Schedule Consultation
+          </Link>
         </div>
       </section>
     </div>

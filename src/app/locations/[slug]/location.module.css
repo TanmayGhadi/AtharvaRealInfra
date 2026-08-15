@@ -1,27 +1,26 @@
 .locationPage {
   min-height: 100vh;
-  padding-top: 80px;
+  padding-top: 90px;
+  background-color: var(--warm-ivory, #F5F1E8);
+  color: var(--text-primary, #17231F);
 }
 
 .locationHero {
-  height: 60vh;
-  min-height: 400px;
-  background-image: url('https://images.unsplash.com/photo-1596395819057-e37f55a8516d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1328&q=80');
+  height: 48vh;
+  min-height: 380px;
   background-size: cover;
   background-position: center;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: var(--deep-forest, #0C241C);
 }
 
 .heroOverlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(rgba(10,10,10,0.5), rgba(10,10,10,0.8));
+  inset: 0;
+  background: linear-gradient(180deg, rgba(12, 36, 28, 0.75) 0%, rgba(12, 36, 28, 0.85) 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -30,31 +29,42 @@
   padding: 0 5%;
 }
 
+.locationSubtitle {
+  color: var(--muted-champagne, #C9A24E);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
+}
+
 .heroOverlay h1 {
-  font-size: 4rem;
-  color: var(--accent-gold);
-  margin-bottom: 1rem;
+  font-family: var(--font-serif);
+  font-size: clamp(2.4rem, 4.5vw, 3.8rem);
+  color: #F7F4EC;
+  margin-bottom: 0.75rem;
 }
 
 .heroOverlay p {
-  font-size: 1.25rem;
-  color: white;
-  max-width: 600px;
+  font-size: 1.1rem;
+  color: rgba(247, 244, 236, 0.85);
+  max-width: 620px;
+  line-height: 1.6;
 }
 
 .statsCard {
-  background: var(--bg-card);
-  padding: 2.5rem;
-  border-radius: 12px;
-  border: 1px solid var(--accent-gold);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  background: var(--soft-cream, #EDE7DA);
+  padding: 2.25rem;
+  border-radius: 10px;
+  border: 1px solid rgba(18, 49, 40, 0.12);
+  box-shadow: 0 4px 15px rgba(18, 49, 40, 0.05);
 }
 
 .statsCard h3 {
-  font-family: var(--font-sans);
-  color: var(--accent-gold);
-  margin-bottom: 1.5rem;
-  font-size: 1.5rem;
+  font-family: var(--font-serif);
+  color: var(--primary-forest, #123128);
+  margin-bottom: 1.25rem;
+  font-size: 1.35rem;
 }
 
 .statsCard ul {
@@ -62,22 +72,17 @@
 }
 
 .statsCard li {
-  font-size: 1.1rem;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  font-size: 0.95rem;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid rgba(18, 49, 40, 0.1);
   display: flex;
   justify-content: space-between;
+  color: var(--text-primary, #17231F);
 }
 
 .statsCard li:last-child {
   border-bottom: none;
   margin-bottom: 0;
   padding-bottom: 0;
-}
-
-@media (max-width: 768px) {
-  .heroOverlay h1 {
-    font-size: 2.5rem;
-  }
 }

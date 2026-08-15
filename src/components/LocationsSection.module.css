@@ -1,0 +1,110 @@
+.locationsContainer {
+  margin-top: 4rem;
+  text-align: center;
+  max-width: 1040px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-inline: 1rem;
+}
+
+.headerWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2.25rem;
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--text-primary, #17231F);
+  margin-bottom: 0.6rem;
+  letter-spacing: -0.2px;
+}
+
+.titleLine {
+  width: 50px;
+  height: 2px;
+  background-color: var(--muted-champagne, #C9A24E);
+  border-radius: 2px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.1rem;
+  justify-content: center;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+.locationChip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0.75rem 1.25rem;
+  background-color: var(--warm-ivory, #F5F1E8);
+  border: 1px solid rgba(18, 49, 40, 0.15);
+  border-radius: 8px;
+  color: var(--primary-forest, #123128);
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(18, 49, 40, 0.04);
+  transition: transform 280ms ease, background-color 280ms ease, border-color 280ms ease, box-shadow 280ms ease, color 280ms ease;
+  outline: none;
+  cursor: pointer;
+  user-select: none;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.locationChip:hover,
+.locationChip:focus-visible {
+  background-color: var(--primary-forest, #123128);
+  color: var(--warm-ivory, #F5F1E8);
+  border-color: var(--muted-champagne, #C9A24E);
+  box-shadow: 0 8px 20px rgba(18, 49, 40, 0.18);
+  transform: translateY(-3px) rotate(var(--hover-rotation, -0.7deg));
+}
+
+.locationChip:focus-visible {
+  outline: 2px solid var(--muted-champagne, #C9A24E);
+  outline-offset: 2px;
+}
+
+.locationChip:active {
+  transform: translateY(-1px) rotate(var(--hover-rotation, -0.7deg));
+  box-shadow: 0 4px 12px rgba(18, 49, 40, 0.15);
+}
+
+.activeChip {
+  background-color: var(--primary-forest, #123128) !important;
+  color: var(--warm-ivory, #F5F1E8) !important;
+  border-color: var(--muted-champagne, #C9A24E) !important;
+  box-shadow: 0 4px 14px rgba(18, 49, 40, 0.15);
+}

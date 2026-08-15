@@ -1,0 +1,136 @@
+.searchPanel {
+  background: rgba(12, 36, 28, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(201, 162, 78, 0.35);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.filterGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) auto;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.fieldGroup label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted-champagne, #C9A24E);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+
+.selectInput {
+  background-color: rgba(18, 49, 40, 0.7);
+  border: 1px solid rgba(247, 244, 236, 0.2);
+  border-radius: 6px;
+  color: #F7F4EC;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.25s ease, background-color 0.25s ease;
+  cursor: pointer;
+  width: 100%;
+}
+
+.selectInput:focus, .selectInput:hover {
+  border-color: var(--muted-champagne, #C9A24E);
+  background-color: rgba(18, 49, 40, 0.95);
+}
+
+.selectInput option {
+  background-color: #0C241C;
+  color: #F7F4EC;
+}
+
+.searchBtn {
+  background-color: var(--muted-champagne, #C9A24E);
+  color: #0C241C;
+  font-weight: 700;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  padding: 0.75rem 1.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--muted-champagne, #C9A24E);
+  transition: all 0.25s ease;
+  white-space: nowrap;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.searchBtn:hover {
+  background-color: #D8B25C;
+  border-color: #D8B25C;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(201, 162, 78, 0.3);
+}
+
+.secondaryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(247, 244, 236, 0.1);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.checkboxes {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.checkboxLabel {
+  font-size: 0.82rem;
+  color: rgba(247, 244, 236, 0.85);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  accent-color: var(--muted-champagne, #C9A24E);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+@media (max-width: 992px) {
+  .filterGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .searchBtn {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .filterGrid {
+    grid-template-columns: 1fr;
+  }
+  .searchPanel {
+    padding: 1.2rem;
+    border-radius: 8px;
+  }
+}

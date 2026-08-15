@@ -1,0 +1,214 @@
+.aboutPage {
+  padding-top: 90px;
+  min-height: 100vh;
+  background-color: var(--warm-ivory, #F5F1E8);
+  color: var(--text-primary, #17231F);
+}
+
+.heroSection {
+  background-color: var(--deep-forest, #0C241C);
+  color: #F7F4EC;
+  padding: 4.5rem 5% 3.5rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(201, 162, 78, 0.2);
+}
+
+.heroContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.heroSubtitle {
+  color: var(--muted-champagne, #C9A24E);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.heroTitle {
+  font-family: var(--font-serif);
+  font-size: clamp(2.4rem, 4.5vw, 3.6rem);
+  color: #F7F4EC;
+  margin-bottom: 1rem;
+}
+
+.heroDescription {
+  font-size: 1.1rem;
+  color: rgba(247, 244, 236, 0.85);
+  line-height: 1.6;
+}
+
+/* ================= OWNER SECTION ================= */
+.ownerSection {
+  padding-block: 5.5rem;
+  background-color: var(--warm-ivory, #F5F1E8);
+}
+
+.mobileEyebrow {
+  display: none;
+  color: var(--muted-champagne, #C9A24E);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-family: var(--font-sans);
+  margin-bottom: 1.25rem;
+  text-align: center;
+}
+
+.ownerGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: 4.5rem;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.portraitColumn {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.portraitWrapper {
+  width: 100%;
+  max-width: 520px;
+  aspect-ratio: 4 / 3;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: var(--soft-cream, #EDE7DA);
+  border: 1px solid rgba(18, 49, 40, 0.12);
+  box-shadow: 0 4px 18px rgba(18, 49, 40, 0.05);
+}
+
+.portraitImage {
+  object-fit: cover;
+  object-position: center 20%;
+}
+
+.contentColumn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.desktopEyebrow {
+  display: block;
+  color: var(--muted-champagne, #C9A24E);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-family: var(--font-sans);
+  margin-bottom: 0.4rem;
+}
+
+.ownerName {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 3.2vw, 2.6rem);
+  font-weight: 600;
+  color: var(--text-primary, #17231F);
+  margin-bottom: 0.35rem;
+  line-height: 1.25;
+}
+
+.ownerDesignation {
+  color: var(--muted-champagne, #C9A24E);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 1.25rem;
+}
+
+.ownerDescription {
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--text-secondary, #5D665F);
+  margin-bottom: 1.5rem;
+  max-width: 580px;
+}
+
+.ownerQuote {
+  border-left: 3px solid var(--primary-forest, #123128);
+  padding-left: 1.25rem;
+  font-style: italic;
+  font-size: 0.98rem;
+  line-height: 1.65;
+  color: var(--text-secondary, #5D665F);
+  margin-bottom: 2rem;
+  max-width: 560px;
+}
+
+.ownerCtaBtn {
+  align-self: flex-start;
+  background-color: var(--primary-forest, #123128);
+  color: #F7F4EC;
+  border: 1px solid var(--primary-forest, #123128);
+  padding: 0.85rem 1.8rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 4px;
+  transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(18, 49, 40, 0.08);
+}
+
+.ownerCtaBtn:hover {
+  background-color: var(--deep-forest, #0C241C);
+  border-color: var(--deep-forest, #0C241C);
+  color: #FFFFFF;
+  transform: translateY(-2px);
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 1024px) {
+  .ownerGrid {
+    gap: 3rem;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .ownerSection {
+    padding-block: 3.5rem;
+  }
+  
+  .mobileEyebrow {
+    display: block;
+  }
+
+  .desktopEyebrow {
+    display: none;
+  }
+
+  .ownerGrid {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+
+  .portraitColumn {
+    margin-bottom: 0.5rem;
+  }
+
+  .portraitWrapper {
+    max-width: 420px;
+    aspect-ratio: 4 / 3;
+    margin: 0 auto;
+  }
+
+  .ownerCtaBtn {
+    align-self: stretch;
+    text-align: center;
+  }
+}

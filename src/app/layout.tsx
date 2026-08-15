@@ -68,6 +68,7 @@ export default function RootLayout({
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preload" href="/hero-drone.mp4" as="video" type="video/mp4" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -85,7 +86,7 @@ export default function RootLayout({
                 "addressCountry": "IN"
               },
               "telephone": "+918788818163",
-              "email": "info@atharvarealinfra.com"
+              "email": "ds200784@atharvarealinfra.com"
             })
           }}
         />

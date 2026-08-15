@@ -1,6 +1,5 @@
 import Link from "next/link";
 import styles from "./page.module.css";
-import homeStyles from "../page.module.css"; // Reuse some styles
 import { getServiceSupabase } from "@/lib/supabase";
 import PropertyFilters from "@/components/PropertyFilters";
 import SortSelect from "@/components/SortSelect";
@@ -9,11 +8,12 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Property Listings | Agricultural Land & NA Plots",
-  description: "Browse our exclusive real estate listings. Find farm land for sale, NA plots, and premium land investments near Goa and Mopa Airport.",
+  title: "Property Listings | Agricultural Land & NA Plots in Sindhudurg",
+  description: "Browse curated land investment listings. Find agricultural plots, farmhouses, and NA land opportunities near Mopa Airport, Goa, and NH-66.",
+  alternates: { canonical: 'https://www.atharvarealinfra.com/properties' }
 };
 
-export const revalidate = 0; // Dynamic route for filters
+export const revalidate = 0;
 
 export default async function Properties({
   searchParams,
@@ -48,7 +48,6 @@ export default async function Properties({
     const statuses = Array.isArray(resolvedSearchParams.status) ? resolvedSearchParams.status : [resolvedSearchParams.status];
     query = query.in('status', statuses);
   } else if (!resolvedSearchParams.status && resolvedSearchParams.status !== '') {
-    // Default to available if nothing specified (if status parameter is completely absent)
     query = query.eq('status', 'Available');
   }
 
@@ -65,7 +64,7 @@ export default async function Properties({
     else if (b === 'above-5cr') query = query.gt('price_numeric', 50000000);
   }
 
-  // Area filter (1 Acre = ~4047 sqm)
+  // Area filter
   if (resolvedSearchParams.area) {
     const a = resolvedSearchParams.area;
     if (a === 'under-1') query = query.lt('area_sqm', 4047);
@@ -81,14 +80,16 @@ export default async function Properties({
   else query = query.order('created_at', { ascending: false });
 
   const { data: properties, error } = await query;
+  if (error) console.error("Error fetching properties:", error);
   const displayProperties = properties || [];
 
   return (
     <div className={styles.propertiesPage}>
       <div className={styles.pageHeader}>
         <div className={styles.headerContent}>
-          <h1>Exclusive Properties</h1>
-          <p>Discover our curated portfolio of premium land opportunities.</p>
+          <span className={styles.headerSubtitle}>PROPERTIES</span>
+          <h1>Find Land Worth Investing In</h1>
+          <p>Explore curated agricultural and real estate opportunities in Sindhudurg & Konkan.</p>
         </div>
       </div>
 
@@ -101,22 +102,38 @@ export default async function Properties({
         {/* Property Grid */}
         <div className={styles.mainContent}>
           <div className={styles.toolbar}>
-            <p>Showing {displayProperties.length} properties</p>
-            <Suspense fallback={<div>...</div>}>
+            <p className={styles.resultsCount}>Showing {displayProperties.length} properties</p>
+            <Suspense fallback={<div>Loading...</div>}>
               <SortSelect />
             </Suspense>
           </div>
 
-          <div className="grid-2">
+          <div className="grid-3">
             {displayProperties.map((prop: any, idx: number) => (
               <PropertyCard key={prop.id} prop={prop} index={idx} styleClass="" />
             ))}
-            {displayProperties.length === 0 && (
-              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '3rem 0', color: 'var(--text-secondary)' }}>
-                No properties match your current filters.
-              </div>
-            )}
           </div>
+
+          {displayProperties.length === 0 && (
+            <div style={{ 
+              backgroundColor: 'var(--soft-cream, #EDE7DA)', 
+              borderRadius: '8px', 
+              padding: '4rem 2rem', 
+              textAlign: 'center', 
+              border: '1px solid rgba(18, 49, 40, 0.12)',
+              marginTop: '1rem'
+            }}>
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', marginBottom: '0.5rem', color: 'var(--primary-forest)' }}>
+                No Properties Found
+              </h3>
+              <p className="text-muted" style={{ marginBottom: '1.5rem' }}>
+                Try adjusting your filters or exploring another location.
+              </p>
+              <Link href="/properties" className="btn-primary">
+                RESET FILTERS
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </div>
