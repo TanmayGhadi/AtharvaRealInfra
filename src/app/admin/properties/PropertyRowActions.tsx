@@ -11,7 +11,7 @@ export default function PropertyRowActions({ property }: { property: any }) {
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this property? This cannot be undone.')) return;
+    if (!confirm(`Are you sure you want to delete "${property.title}"? This cannot be undone.`)) return;
     setIsDeleting(true);
     try {
       await deleteProperty(property.id);
@@ -36,46 +36,75 @@ export default function PropertyRowActions({ property }: { property: any }) {
     }
   };
 
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case 'Available':
+        return { bg: '#DCFCE7', color: '#166534', border: '#86EFAC' };
+      case 'Sold':
+        return { bg: '#FEE2E2', color: '#991B1B', border: '#FCA5A5' };
+      case 'Reserved':
+        return { bg: '#FEF3C7', color: '#92400E', border: '#FDE68A' };
+      case 'On Hold':
+        return { bg: '#F3F4F6', color: '#374151', border: '#D1D5DB' };
+      default:
+        return { bg: '#EDE7DA', color: '#123128', border: 'rgba(18,49,40,0.2)' };
+    }
+  };
+
+  const currentStatusStyle = getStatusStyle(property.status);
+
   return (
     <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', justifyContent: 'flex-end' }}>
       <select 
-        value={property.status} 
+        value={property.status || 'Available'} 
         onChange={handleStatusChange} 
         disabled={isUpdating}
         style={{
-          padding: '6px 12px',
+          padding: '6px 10px',
           borderRadius: '6px',
-          background: 'var(--bg-primary)',
-          color: property.status === 'Available' ? '#4ade80' : (property.status === 'Sold' ? '#f87171' : '#fbbf24'),
-          border: '1px solid rgba(255,255,255,0.2)',
-          fontSize: '0.8rem',
+          background: currentStatusStyle.bg,
+          color: currentStatusStyle.color,
+          border: `1px solid ${currentStatusStyle.border}`,
+          fontSize: '0.82rem',
+          fontWeight: 700,
           cursor: 'pointer',
           outline: 'none',
-          minWidth: '100px'
+          minWidth: '105px'
         }}
       >
-        <option value="Available" style={{color: '#fff'}}>Available</option>
-        <option value="Sold" style={{color: '#fff'}}>Sold</option>
-        <option value="Reserved" style={{color: '#fff'}}>Reserved</option>
+        <option value="Available" style={{ color: '#17231F', background: '#FFFFFF' }}>Available</option>
+        <option value="Sold" style={{ color: '#17231F', background: '#FFFFFF' }}>Sold</option>
+        <option value="Reserved" style={{ color: '#17231F', background: '#FFFFFF' }}>Reserved</option>
+        <option value="On Hold" style={{ color: '#17231F', background: '#FFFFFF' }}>On Hold</option>
       </select>
       
-      <div style={{ display: 'flex', gap: '0.5rem', background: 'rgba(255,255,255,0.05)', padding: '0.25rem', borderRadius: '6px' }}>
+      <div style={{ display: 'flex', gap: '0.25rem', background: '#EDE7DA', padding: '0.25rem', borderRadius: '6px', border: '1px solid rgba(18,49,40,0.12)' }}>
         <Link 
           href={`/properties/${property.id}`}
           target="_blank"
-          title="Preview Property"
-          style={{ padding: '4px 8px', color: 'var(--text-secondary)', transition: 'color 0.2s' }}
-          onMouseOver={e => e.currentTarget.style.color = '#fff'}
-          onMouseOut={e => e.currentTarget.style.color = 'var(--text-secondary)'}
+          title="View Public Page"
+          style={{ 
+            padding: '5px 8px', 
+            color: '#123128', 
+            fontSize: '0.9rem',
+            borderRadius: '4px',
+            transition: 'all 0.15s ease',
+            textDecoration: 'none'
+          }}
         >
           👁️
         </Link>
         <Link 
           href={`/admin/properties/${property.id}/edit`} 
           title="Edit Property"
-          style={{ padding: '4px 8px', color: 'var(--text-secondary)', transition: 'color 0.2s' }}
-          onMouseOver={e => e.currentTarget.style.color = 'var(--accent-gold)'}
-          onMouseOut={e => e.currentTarget.style.color = 'var(--text-secondary)'}
+          style={{ 
+            padding: '5px 8px', 
+            color: '#123128', 
+            fontSize: '0.9rem',
+            borderRadius: '4px',
+            transition: 'all 0.15s ease',
+            textDecoration: 'none'
+          }}
         >
           ✏️
         </Link>
@@ -83,9 +112,17 @@ export default function PropertyRowActions({ property }: { property: any }) {
           onClick={handleDelete} 
           disabled={isDeleting}
           title="Delete Property"
-          style={{ padding: '4px 8px', color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', opacity: isDeleting ? 0.5 : 1, transition: 'color 0.2s' }}
-          onMouseOver={e => e.currentTarget.style.color = '#f87171'}
-          onMouseOut={e => e.currentTarget.style.color = 'var(--text-secondary)'}
+          style={{ 
+            padding: '5px 8px', 
+            color: '#991B1B', 
+            background: 'none', 
+            border: 'none', 
+            cursor: 'pointer', 
+            fontSize: '0.9rem',
+            opacity: isDeleting ? 0.5 : 1,
+            borderRadius: '4px',
+            transition: 'all 0.15s ease'
+          }}
         >
           🗑️
         </button>

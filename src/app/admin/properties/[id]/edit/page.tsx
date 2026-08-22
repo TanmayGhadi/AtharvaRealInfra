@@ -1,11 +1,9 @@
 'use client';
 
-import { useState, useEffect, useRef, use } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { updateProperty, getProperty, getLocations } from '../../actions';
 import styles from '../../../admin.module.css';
 import Link from 'next/link';
-
-import { uploadMediaServer } from '../../uploadAction';
 
 export default function EditPropertyPage({ params }: { params: any }) {
   const [loading, setLoading] = useState(true);
@@ -178,7 +176,6 @@ export default function EditPropertyPage({ params }: { params: any }) {
 
   const compressImage = (file: File): Promise<File> => {
     return new Promise((resolve, reject) => {
-      // Don't compress if not an image or if it's already small (< 5MB)
       if (!file.type.startsWith('image/') || file.size <= 5 * 1024 * 1024) {
         return resolve(file);
       }
@@ -191,8 +188,6 @@ export default function EditPropertyPage({ params }: { params: any }) {
         const canvas = document.createElement('canvas');
         let width = img.width;
         let height = img.height;
-        
-        // Max dimensions
         const MAX_WIDTH = 1920;
         const MAX_HEIGHT = 1080;
         
@@ -214,8 +209,6 @@ export default function EditPropertyPage({ params }: { params: any }) {
         if (!ctx) return resolve(file);
         
         ctx.drawImage(img, 0, 0, width, height);
-        
-        // Compress to 80% quality JPEG
         canvas.toBlob((blob) => {
           if (blob) {
             const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
@@ -241,13 +234,10 @@ export default function EditPropertyPage({ params }: { params: any }) {
     
     for (let i = 0; i < e.target.files.length; i++) {
       let file = e.target.files[i];
-      
-      // Auto-compress large images before uploading
       if (type === 'image') {
         file = await compressImage(file);
       }
       try {
-        // Get signature from API
         const sigRes = await fetch('/api/upload-signature', { method: 'POST' });
         const sigData = await sigRes.json();
         
@@ -255,7 +245,6 @@ export default function EditPropertyPage({ params }: { params: any }) {
           throw new Error(sigData.error || 'Failed to get upload signature');
         }
 
-        // Upload directly to Cloudinary
         const cloudinaryData = new FormData();
         cloudinaryData.append('file', file);
         cloudinaryData.append('api_key', sigData.api_key);
@@ -269,7 +258,6 @@ export default function EditPropertyPage({ params }: { params: any }) {
         });
         
         const result = await uploadRes.json();
-        
         if (!uploadRes.ok || result.error) {
           throw new Error(result.error?.message || result.error || `HTTP error ${uploadRes.status}`);
         }
@@ -305,11 +293,9 @@ export default function EditPropertyPage({ params }: { params: any }) {
     setReplaceIndex(null);
   };
 
-  // Image Management
   const moveImage = (index: number, direction: 'up' | 'down') => {
     if (direction === 'up' && index === 0) return;
     if (direction === 'down' && index === images.length - 1) return;
-    
     const newImages = [...images];
     const swapIndex = direction === 'up' ? index - 1 : index + 1;
     [newImages[index], newImages[swapIndex]] = [newImages[swapIndex], newImages[index]];
@@ -332,7 +318,6 @@ export default function EditPropertyPage({ params }: { params: any }) {
     }
   };
 
-  // Amenities Management
   const addAmenity = () => {
     if (amenityInput.trim()) {
       setAmenities([...amenities, amenityInput.trim()]);
@@ -354,7 +339,6 @@ export default function EditPropertyPage({ params }: { params: any }) {
     
     try {
       const formData = new FormData(e.currentTarget);
-      // Append complex fields
       formData.set('images', JSON.stringify(images));
       formData.set('thumbnail_image', thumbnailImage || '');
       formData.set('amenities', JSON.stringify(amenities));
@@ -375,55 +359,76 @@ export default function EditPropertyPage({ params }: { params: any }) {
     }
   };
 
-  if (loading) return <div style={{ padding: '2rem', color: 'white' }}>Loading property details...</div>;
-  if (!property) return <div style={{ padding: '2rem', color: '#f87171' }}>Property not found.</div>;
+  const inputStyle = {
+    width: '100%',
+    padding: '0.8rem 1rem',
+    background: '#FFFFFF',
+    border: '1px solid rgba(18,49,40,0.25)',
+    color: '#17231F',
+    borderRadius: '6px',
+    fontSize: '0.95rem',
+    fontWeight: 500
+  };
+
+  const labelStyle = {
+    display: 'block',
+    marginBottom: '0.5rem',
+    color: '#123128',
+    fontWeight: 700,
+    fontSize: '0.85rem',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.5px'
+  };
+
+  if (loading) return <div style={{ padding: '3rem', color: '#123128', fontWeight: 700, textAlign: 'center' }}>Loading property details...</div>;
+  if (!property) return <div style={{ padding: '3rem', color: '#991B1B', fontWeight: 700, textAlign: 'center' }}>Property not found.</div>;
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1>Edit Property</h1>
-        <Link href="/admin/properties" className="btn-outline" style={{ padding: '8px 16px', fontSize: '0.9rem' }}>
+        <h1 style={{ color: '#123128', fontFamily: 'var(--font-serif)', fontSize: '1.8rem', margin: 0 }}>
+          Edit Property: <span style={{ color: '#C9A24E' }}>{property.title}</span>
+        </h1>
+        <Link href="/admin/properties" className="btn-outline" style={{ padding: '8px 16px', fontSize: '0.85rem', borderColor: '#123128', color: '#123128', fontWeight: 700 }}>
           Back to Properties
         </Link>
       </div>
 
       {saveStatus === 'success' && (
-        <div style={{ background: 'rgba(74, 222, 128, 0.2)', border: '1px solid #4ade80', color: '#4ade80', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>Changes Saved Successfully! Data is permanently stored.</span>
-          <button onClick={() => setSaveStatus('idle')} style={{ background: 'none', border: 'none', color: '#4ade80', cursor: 'pointer' }}>✕</button>
+        <div style={{ background: '#DCFCE7', border: '1px solid #86EFAC', color: '#166534', padding: '1rem 1.25rem', borderRadius: '8px', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 700 }}>
+          <span>✓ Changes Saved Successfully! Data updated permanently.</span>
+          <button type="button" onClick={() => setSaveStatus('idle')} style={{ background: 'none', border: 'none', color: '#166534', cursor: 'pointer', fontWeight: 700 }}>✕</button>
         </div>
       )}
 
       {saveStatus === 'error' && (
-        <div style={{ background: 'rgba(248, 113, 113, 0.2)', border: '1px solid #f87171', color: '#f87171', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ background: '#FEE2E2', border: '1px solid #FCA5A5', color: '#991B1B', padding: '1rem 1.25rem', borderRadius: '8px', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 600 }}>
           <span>Error saving property: {errorMessage}</span>
-          <button onClick={() => setSaveStatus('idle')} style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer' }}>✕</button>
+          <button type="button" onClick={() => setSaveStatus('idle')} style={{ background: 'none', border: 'none', color: '#991B1B', cursor: 'pointer', fontWeight: 700 }}>✕</button>
         </div>
       )}
 
-      {/* Lightbox Overlay */}
       {previewImage && (
         <div 
           onClick={() => setPreviewImage(null)}
           style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
         >
-          <img src={previewImage} style={{ maxWidth: '90%', maxHeight: '90%', borderRadius: '8px', border: '2px solid var(--accent-gold)' }} alt="Preview" />
+          <img src={previewImage} style={{ maxWidth: '90%', maxHeight: '90%', borderRadius: '8px', border: '2px solid #C9A24E' }} alt="Preview" />
         </div>
       )}
 
       <div className={styles.card}>
         <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.5rem' }}>
-
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Property Title / Name</label>
-              <input type="text" name="title" defaultValue={property.title} required style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} />
+              <label style={labelStyle}>Property Title / Name *</label>
+              <input type="text" name="title" defaultValue={property.title} required style={inputStyle} />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Property Type</label>
-              <select name="property_type" defaultValue={property.property_type} style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }}>
-                <option value="Agricultural">Agricultural Land</option>
+              <label style={labelStyle}>Property Type *</label>
+              <select name="property_type" defaultValue={property.property_type || 'Agricultural Land'} style={inputStyle}>
+                <option value="Agricultural Land">Agricultural Land</option>
                 <option value="Farmhouse">Farmhouse Plot</option>
                 <option value="Commercial">Commercial Land</option>
                 <option value="Investment">Investment Plot</option>
@@ -432,187 +437,214 @@ export default function EditPropertyPage({ params }: { params: any }) {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Description</label>
-            <textarea name="description" defaultValue={property.description} required rows={4} style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }}></textarea>
+            <label style={labelStyle}>Description *</label>
+            <textarea name="description" defaultValue={property.description} required rows={4} style={inputStyle}></textarea>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>District</label>
-              <select name="district" required value={district} onChange={e => { setDistrict(e.target.value); setTaluka(''); setVillage(''); }} style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }}>
+              <label style={labelStyle}>District *</label>
+              <select name="district" required value={district} onChange={e => { setDistrict(e.target.value); setTaluka(''); setVillage(''); }} style={inputStyle}>
                 <option value="">Select District</option>
                 {Object.keys(locationHierarchy).map(d => <option key={d} value={d}>{d}</option>)}
+                {!Object.keys(locationHierarchy).length && <option value="Sindhudurg">Sindhudurg</option>}
               </select>
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Taluka</label>
-              <select name="taluka" required value={taluka} onChange={e => { setTaluka(e.target.value); setVillage(''); }} disabled={!district} style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }}>
+              <label style={labelStyle}>Taluka *</label>
+              <select name="taluka" required value={taluka} onChange={e => { setTaluka(e.target.value); setVillage(''); }} style={inputStyle}>
                 <option value="">Select Taluka</option>
                 {availableTalukas.map(t => <option key={t} value={t}>{t}</option>)}
+                {!availableTalukas.length && (
+                  <>
+                    <option value="Kudal">Kudal</option>
+                    <option value="Sawantwadi">Sawantwadi</option>
+                    <option value="Dodamarg">Dodamarg</option>
+                    <option value="Vengurla">Vengurla</option>
+                    <option value="Kankavli">Kankavli</option>
+                    <option value="Malvan">Malvan</option>
+                  </>
+                )}
               </select>
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Village (Optional)</label>
-              <select name="village" value={village} onChange={e => setVillage(e.target.value)} disabled={!taluka} style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }}>
-                <option value="">Select Village</option>
-                {availableVillages.map(v => <option key={v} value={v}>{v}</option>)}
+              <label style={labelStyle}>Village *</label>
+              <input type="text" name="village" required value={village} onChange={e => setVillage(e.target.value)} style={inputStyle} />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <div>
+              <label style={labelStyle}>Price (Display) *</label>
+              <input type="text" name="price_display" required value={priceDisplay} onChange={handlePriceDisplayChange} style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>Price (Numeric) *</label>
+              <input type="number" name="price_numeric" required value={priceNumeric} onChange={e => setPriceNumeric(e.target.value)} style={inputStyle} />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem' }}>
+            <div>
+              <label style={labelStyle}>Area (Display) *</label>
+              <input type="text" name="area_display" required value={areaDisplay} onChange={handleAreaDisplayChange} style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>Price Per Acre (Auto)</label>
+              <input type="text" readOnly placeholder="Calculated automatically" value={pricePerAcre} style={{ ...inputStyle, background: '#EDE7DA', color: '#123128', fontWeight: 700 }} />
+            </div>
+            <div>
+              <label style={labelStyle}>Status *</label>
+              <select name="status" defaultValue={property.status || 'Available'} style={inputStyle}>
+                <option value="Available">Available</option>
+                <option value="Sold">Sold</option>
+                <option value="Reserved">Reserved</option>
+                <option value="On Hold">On Hold</option>
               </select>
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Price (Display)</label>
-              <input type="text" name="price_display" required value={priceDisplay} onChange={handlePriceDisplayChange} style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} />
+              <label style={labelStyle}>Latitude (Optional)</label>
+              <input type="text" name="latitude" defaultValue={property.latitude || ''} placeholder="e.g. 16.0" style={inputStyle} />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Price (Numeric for sorting)</label>
-              <input type="number" name="price_numeric" required value={priceNumeric} onChange={e => setPriceNumeric(e.target.value)} style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} />
+              <label style={labelStyle}>Longitude (Optional)</label>
+              <input type="text" name="longitude" defaultValue={property.longitude || ''} placeholder="e.g. 73.5" style={inputStyle} />
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Area (Display)</label>
-              <input type="text" name="area_display" required value={areaDisplay} onChange={handleAreaDisplayChange} style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Price Per Acre (Auto-Calculated)</label>
-              <input type="text" readOnly placeholder="Calculated automatically" value={pricePerAcre} style={{ width: '100%', padding: '0.8rem', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(212,175,55,0.2)', color: 'var(--accent-gold)', borderRadius: '4px' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Status</label>
-              <select name="status" defaultValue={property.status} style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }}>
-                <option value="Available">Available</option>
-                <option value="Sold">Sold</option>
-                <option value="Reserved">Reserved</option>
-              </select>
-            </div>
-          </div>
-
-          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(212,175,55,0.2)', paddingTop: '1.5rem' }}>
-            <h3 style={{ marginBottom: '1rem' }}>Amenities</h3>
+          <div style={{ marginTop: '0.5rem', borderTop: '1px solid rgba(18,49,40,0.15)', paddingTop: '1.25rem' }}>
+            <h3 style={{ marginBottom: '0.75rem', color: '#123128', fontSize: '1.1rem' }}>Amenities</h3>
             <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
               <input 
                 type="text" 
                 value={amenityInput} 
                 onChange={(e) => setAmenityInput(e.target.value)} 
-                placeholder="e.g. Electricity, Water Supply..." 
-                style={{ flex: 1, padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} 
+                placeholder="e.g. Road Access, Water Supply, River View..." 
+                style={{ ...inputStyle, flex: 1 }} 
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addAmenity(); } }}
               />
-              <button type="button" onClick={addAmenity} className="btn-primary" style={{ padding: '0 1.5rem' }}>Add</button>
+              <button type="button" onClick={addAmenity} className="btn-primary" style={{ padding: '0 1.5rem', backgroundColor: '#123128', color: '#FFFFFF', fontWeight: 700 }}>Add</button>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
               {amenities.map((am, i) => (
-                <div key={i} style={{ background: 'rgba(212,175,55,0.1)', border: '1px solid var(--accent-gold)', padding: '0.4rem 0.8rem', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div key={i} style={{ background: '#EDE7DA', border: '1px solid rgba(18,49,40,0.2)', padding: '0.4rem 0.8rem', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#123128', fontWeight: 600 }}>
                   <span>{am}</span>
-                  <button type="button" onClick={() => removeAmenity(i)} style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', padding: '0 4px' }}>&times;</button>
+                  <button type="button" onClick={() => removeAmenity(i)} style={{ background: 'none', border: 'none', color: '#991B1B', cursor: 'pointer', fontWeight: 700, padding: '0 4px' }}>&times;</button>
                 </div>
               ))}
             </div>
           </div>
 
-          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(212,175,55,0.2)', paddingTop: '1.5rem' }}>
-            <h3 style={{ marginBottom: '1rem' }}>SEO Settings</h3>
-            <div style={{ display: 'grid', gap: '1.5rem' }}>
+          <div style={{ marginTop: '0.5rem', borderTop: '1px solid rgba(18,49,40,0.15)', paddingTop: '1.25rem' }}>
+            <h3 style={{ marginBottom: '0.75rem', color: '#123128', fontSize: '1.1rem' }}>SEO Settings</h3>
+            <div style={{ display: 'grid', gap: '1rem' }}>
               <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>SEO Friendly Slug (URL)</label>
-                <input type="text" name="slug" value={slug} onChange={e => setSlug(e.target.value)} placeholder="e.g. premium-agricultural-land-kankavli" style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} />
+                <label style={labelStyle}>SEO Friendly Slug (URL)</label>
+                <input type="text" name="slug" value={slug} onChange={e => setSlug(e.target.value)} placeholder="e.g. premium-agricultural-land-kankavli" style={inputStyle} />
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>SEO Title</label>
-                <input type="text" name="seo_title" value={seoTitle} onChange={e => setSeoTitle(e.target.value)} placeholder="e.g. Premium Agricultural Land in Kankavli | Atharva Real Infra" style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} />
+                <label style={labelStyle}>SEO Title</label>
+                <input type="text" name="seo_title" value={seoTitle} onChange={e => setSeoTitle(e.target.value)} placeholder="e.g. Premium Agricultural Land in Kankavli | Atharva Real Infra" style={inputStyle} />
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>SEO Description</label>
-                <textarea name="seo_description" value={seoDescription} onChange={e => setSeoDescription(e.target.value)} rows={2} style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }}></textarea>
+                <label style={labelStyle}>SEO Description</label>
+                <textarea name="seo_description" value={seoDescription} onChange={e => setSeoDescription(e.target.value)} rows={2} style={inputStyle}></textarea>
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>SEO Keywords</label>
-                <input type="text" name="seo_keywords" value={seoKeywords} onChange={e => setSeoKeywords(e.target.value)} placeholder="e.g. property in maharashtra, agricultural land near goa" style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} />
+                <label style={labelStyle}>SEO Keywords</label>
+                <input type="text" name="seo_keywords" value={seoKeywords} onChange={e => setSeoKeywords(e.target.value)} placeholder="e.g. property in maharashtra, agricultural land near goa" style={inputStyle} />
               </div>
             </div>
           </div>
 
-          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(212,175,55,0.2)', paddingTop: '1.5rem' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', cursor: 'pointer', marginBottom: '1rem' }}>
-              <input type="checkbox" name="is_featured" defaultChecked={property.is_featured} />
-              <span style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>Feature this property on the homepage</span>
+          <div style={{ marginTop: '0.5rem', borderTop: '1px solid rgba(18,49,40,0.15)', paddingTop: '1.25rem' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#123128', cursor: 'pointer', fontWeight: 700 }}>
+              <input type="checkbox" name="is_featured" defaultChecked={property.is_featured} style={{ width: '18px', height: '18px' }} />
+              <span>Feature this property listing on the homepage</span>
             </label>
           </div>
 
-          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(212,175,55,0.2)', paddingTop: '1.5rem' }}>
-            <h3 style={{ marginBottom: '1rem' }}>Image Management</h3>
-            <div style={{ marginBottom: '1.5rem' }}>
-              <input type="file" multiple accept="image/*" onChange={(e) => handleFileUpload(e, 'image')} disabled={uploading} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }} />
-              {uploading && <span style={{ marginLeft: '1rem', color: 'var(--accent-gold)' }}>Uploading to Cloudinary...</span>}
+          {/* Media Section: Images, Videos, Replace, Reorder */}
+          <div style={{ marginTop: '0.5rem', borderTop: '1px solid rgba(18,49,40,0.15)', paddingTop: '1.25rem' }}>
+            <h3 style={{ marginBottom: '0.75rem', color: '#123128', fontSize: '1.1rem' }}>Image Management</h3>
+            <p style={{ color: '#5D665F', fontSize: '0.85rem', marginBottom: '1rem' }}>
+              Add, remove, reorder, replace, or set cover thumbnail image.
+            </p>
+            <div style={{ marginBottom: '1.25rem' }}>
+              <input type="file" multiple accept="image/*" onChange={(e) => handleFileUpload(e, 'image')} disabled={uploading} style={{ padding: '0.5rem', background: '#EDE7DA', borderRadius: '6px', border: '1px solid rgba(18,49,40,0.2)' }} />
+              {uploading && <span style={{ marginLeft: '1rem', color: '#123128', fontWeight: 700 }}>Uploading media...</span>}
             </div>
             
-            {/* Hidden input for replace */}
             <input type="file" ref={replaceFileRef} accept="image/*" onChange={(e) => replaceIndex !== null && handleFileUpload(e, 'image', replaceIndex)} style={{ display: 'none' }} />
 
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               {images.map((img, i) => (
-                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'rgba(255,255,255,0.05)', padding: '0.5rem', borderRadius: '8px', border: thumbnailImage === img ? '2px solid var(--accent-gold)' : '2px solid transparent' }}>
+                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: '#EDE7DA', padding: '0.6rem', borderRadius: '8px', border: thumbnailImage === img ? '2px solid #C9A24E' : '1px solid rgba(18,49,40,0.15)' }}>
                   <div 
                     onClick={() => setPreviewImage(img)}
-                    style={{ width: '150px', height: '150px', backgroundImage: `url(${img})`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '4px', cursor: 'pointer', position: 'relative' }}
+                    style={{ width: '140px', height: '140px', backgroundImage: `url(${img})`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '6px', cursor: 'pointer', position: 'relative' }}
                   >
-                    {thumbnailImage === img && <div style={{ position: 'absolute', top: '5px', left: '5px', background: 'var(--accent-gold)', color: '#000', fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>THUMBNAIL</div>}
+                    {thumbnailImage === img && (
+                      <div style={{ position: 'absolute', top: '5px', left: '5px', background: '#123128', color: '#C9A24E', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px', fontWeight: 800 }}>
+                        THUMBNAIL
+                      </div>
+                    )}
                   </div>
                   <div style={{ display: 'flex', gap: '0.25rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                    <button type="button" onClick={() => moveImage(i, 'up')} disabled={i === 0} style={{ padding: '4px 8px', fontSize: '0.8rem', background: 'var(--bg-primary)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', cursor: i === 0 ? 'not-allowed' : 'pointer' }}>↑</button>
-                    <button type="button" onClick={() => moveImage(i, 'down')} disabled={i === images.length - 1} style={{ padding: '4px 8px', fontSize: '0.8rem', background: 'var(--bg-primary)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', cursor: i === images.length - 1 ? 'not-allowed' : 'pointer' }}>↓</button>
-                    <button type="button" onClick={() => setThumbnailImage(img)} style={{ padding: '4px 8px', fontSize: '0.8rem', background: 'var(--bg-primary)', color: 'var(--accent-gold)', border: '1px solid rgba(212,175,55,0.5)', borderRadius: '4px', cursor: 'pointer' }}>Set Thumb</button>
+                    <button type="button" onClick={() => moveImage(i, 'up')} disabled={i === 0} style={{ padding: '3px 7px', fontSize: '0.75rem', background: '#FFFFFF', color: '#123128', border: '1px solid rgba(18,49,40,0.2)', borderRadius: '4px', cursor: i === 0 ? 'not-allowed' : 'pointer', fontWeight: 700 }}>↑</button>
+                    <button type="button" onClick={() => moveImage(i, 'down')} disabled={i === images.length - 1} style={{ padding: '3px 7px', fontSize: '0.75rem', background: '#FFFFFF', color: '#123128', border: '1px solid rgba(18,49,40,0.2)', borderRadius: '4px', cursor: i === images.length - 1 ? 'not-allowed' : 'pointer', fontWeight: 700 }}>↓</button>
+                    <button type="button" onClick={() => setThumbnailImage(img)} style={{ padding: '3px 7px', fontSize: '0.75rem', background: '#123128', color: '#C9A24E', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 700 }}>Set Cover</button>
                   </div>
                   <div style={{ display: 'flex', gap: '0.25rem', justifyContent: 'center' }}>
-                    <button type="button" onClick={() => triggerReplaceImage(i)} style={{ padding: '4px 8px', fontSize: '0.8rem', background: 'var(--bg-primary)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', cursor: 'pointer', flex: 1 }}>Replace</button>
-                    <button type="button" onClick={() => deleteImage(i)} style={{ padding: '4px 8px', fontSize: '0.8rem', background: '#f87171', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', flex: 1 }}>Delete</button>
+                    <button type="button" onClick={() => triggerReplaceImage(i)} style={{ padding: '3px 7px', fontSize: '0.75rem', background: '#FFFFFF', color: '#123128', border: '1px solid rgba(18,49,40,0.2)', borderRadius: '4px', cursor: 'pointer', flex: 1, fontWeight: 600 }}>Replace</button>
+                    <button type="button" onClick={() => deleteImage(i)} style={{ padding: '3px 7px', fontSize: '0.75rem', background: '#FEE2E2', color: '#991B1B', border: '1px solid #FCA5A5', borderRadius: '4px', cursor: 'pointer', flex: 1, fontWeight: 700 }}>Delete</button>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(212,175,55,0.2)', paddingTop: '1.5rem', display: 'flex', gap: '2rem' }}>
-            <div style={{ flex: 1 }}>
-              <h3 style={{ marginBottom: '1rem' }}>Property Videos</h3>
+          <div style={{ marginTop: '0.5rem', borderTop: '1px solid rgba(18,49,40,0.15)', paddingTop: '1.25rem', display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+            <div style={{ flex: 1, minWidth: '280px' }}>
+              <h3 style={{ marginBottom: '0.75rem', color: '#123128', fontSize: '1.1rem' }}>Property Videos</h3>
               <div style={{ marginBottom: '1rem' }}>
-                <input type="file" multiple accept="video/*" onChange={(e) => handleFileUpload(e, 'video')} disabled={uploading} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }} />
+                <input type="file" multiple accept="video/*" onChange={(e) => handleFileUpload(e, 'video')} disabled={uploading} style={{ padding: '0.5rem', background: '#EDE7DA', borderRadius: '6px', border: '1px solid rgba(18,49,40,0.2)' }} />
               </div>
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                 {videos.map((vid, i) => (
                   <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <video src={vid} style={{ width: '150px', height: '100px', objectFit: 'cover', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)' }} controls />
-                    <button type="button" onClick={() => setVideos(videos.filter((_, idx) => idx !== i))} style={{ padding: '4px', background: '#f87171', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Delete Video</button>
+                    <video src={vid} style={{ width: '160px', height: '100px', objectFit: 'cover', borderRadius: '6px', border: '1px solid rgba(18,49,40,0.2)' }} controls />
+                    <button type="button" onClick={() => setVideos(videos.filter((_, idx) => idx !== i))} style={{ padding: '4px', background: '#FEE2E2', color: '#991B1B', border: '1px solid #FCA5A5', borderRadius: '4px', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem' }}>Delete Video</button>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div style={{ flex: 1 }}>
-              <h3 style={{ marginBottom: '1rem' }}>Property Documents</h3>
+            <div style={{ flex: 1, minWidth: '280px' }}>
+              <h3 style={{ marginBottom: '0.75rem', color: '#123128', fontSize: '1.1rem' }}>Property Documents</h3>
               <div style={{ marginBottom: '1rem' }}>
-                <input type="file" multiple accept=".pdf,.doc,.docx" onChange={(e) => handleFileUpload(e, 'document')} disabled={uploading} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }} />
+                <input type="file" multiple accept=".pdf,.doc,.docx" onChange={(e) => handleFileUpload(e, 'document')} disabled={uploading} style={{ padding: '0.5rem', background: '#EDE7DA', borderRadius: '6px', border: '1px solid rgba(18,49,40,0.2)' }} />
               </div>
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', flexDirection: 'column' }}>
                 {documents.map((doc, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(255,255,255,0.05)', padding: '0.5rem', borderRadius: '4px' }}>
-                    <a href={doc} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-gold)' }}>Document {i + 1}</a>
-                    <button type="button" onClick={() => setDocuments(documents.filter((_, idx) => idx !== i))} style={{ padding: '4px 8px', background: '#f87171', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Delete</button>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#EDE7DA', padding: '0.5rem 0.8rem', borderRadius: '6px', border: '1px solid rgba(18,49,40,0.15)' }}>
+                    <a href={doc} target="_blank" rel="noopener noreferrer" style={{ color: '#123128', fontWeight: 700, textDecoration: 'underline' }}>Document {i + 1}</a>
+                    <button type="button" onClick={() => setDocuments(documents.filter((_, idx) => idx !== i))} style={{ padding: '3px 8px', background: '#FEE2E2', color: '#991B1B', border: '1px solid #FCA5A5', borderRadius: '4px', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem' }}>Delete</button>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          <div style={{ marginTop: '2rem', borderTop: '1px solid rgba(212,175,55,0.5)', paddingTop: '2rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-            <Link href="/admin/properties" className="btn-outline" style={{ padding: '12px 24px' }}>
+          <div style={{ marginTop: '1.5rem', borderTop: '1px solid rgba(18,49,40,0.15)', paddingTop: '1.5rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+            <Link href="/admin/properties" className="btn-outline" style={{ padding: '12px 24px', borderColor: '#123128', color: '#123128', fontWeight: 700 }}>
               Cancel
             </Link>
-            <button type="submit" className="btn-primary" style={{ padding: '12px 32px', fontSize: '1.1rem' }} disabled={uploading || saveStatus === 'saving'}>
-              {uploading ? 'Uploading...' : saveStatus === 'saving' ? 'Saving...' : 'Save Changes'}
+            <button type="submit" className="btn-primary" style={{ padding: '12px 32px', fontSize: '1rem', backgroundColor: '#123128', color: '#FFFFFF', fontWeight: 700 }} disabled={uploading || saveStatus === 'saving'}>
+              {uploading ? 'Uploading Media...' : saveStatus === 'saving' ? 'Saving Changes...' : 'Save Property Changes'}
             </button>
           </div>
         </form>

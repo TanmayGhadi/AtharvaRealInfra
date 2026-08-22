@@ -17,33 +17,84 @@ export default async function AdminProperties() {
       <div className={styles.pageHeader}>
         <div>
           <h1>Property Management</h1>
-          <p className="text-secondary" style={{ marginTop: '0.5rem' }}>Manage your premium land listings and investments.</p>
+          <p style={{ marginTop: '0.4rem', color: '#3D4A41', fontSize: '0.95rem', fontWeight: 500 }}>
+            Manage your premium land listings and investments.
+          </p>
         </div>
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <Link href="/admin/properties/bulk" className="btn-outline" style={{ padding: '8px 16px', fontSize: '0.9rem', display: 'flex', alignItems: 'center' }}>
-            Bulk Actions / Import
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <a 
+            href="/Bulk properties.xlsx" 
+            download="Bulk properties.xlsx"
+            className="btn-outline" 
+            style={{ 
+              padding: '10px 16px', 
+              fontSize: '0.85rem', 
+              fontWeight: 700, 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.4rem',
+              borderColor: '#123128',
+              color: '#123128',
+              textDecoration: 'none'
+            }}
+          >
+            📥 DOWNLOAD TEMPLATE
+          </a>
+          <Link 
+            href="/admin/properties/bulk" 
+            className="btn-outline" 
+            style={{ 
+              padding: '10px 20px', 
+              fontSize: '0.85rem', 
+              fontWeight: 700, 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem',
+              borderColor: '#123128',
+              color: '#123128'
+            }}
+          >
+            📊 BULK ACTIONS / IMPORT
           </Link>
-          <Link href="/admin/properties/new" className="btn-primary" style={{ padding: '8px 16px', fontSize: '0.9rem' }}>
-            + Add New Property
+          <Link 
+            href="/admin/properties/new" 
+            className="btn-primary" 
+            style={{ 
+              padding: '10px 20px', 
+              fontSize: '0.85rem', 
+              fontWeight: 700, 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem',
+              backgroundColor: '#123128',
+              color: '#FFFFFF'
+            }}
+          >
+            + ADD NEW PROPERTY
           </Link>
         </div>
       </div>
       
-      {error && <div style={{ background: 'var(--danger)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>Error loading properties: {error.message}</div>}
+      {error && (
+        <div style={{ background: '#FEE2E2', border: '1px solid #FCA5A5', color: '#991B1B', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', fontWeight: 600 }}>
+          Error loading properties: {error.message}
+        </div>
+      )}
 
-      <div className={styles.chartCard} style={{ overflowX: 'auto', padding: 0 }}>
-        <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className={styles.card} style={{ padding: 0, overflow: 'hidden' }}>
+        <div style={{ padding: '1.25rem 1.5rem', background: '#F5F1E8', borderBottom: '1px solid rgba(18, 49, 40, 0.12)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <div className={styles.search}>
-            <input type="text" placeholder="Search properties by title or location..." />
+            <input type="text" placeholder="Search properties by title, village or location..." style={{ background: '#FFFFFF', borderColor: 'rgba(18, 49, 40, 0.25)', color: '#17231F' }} />
           </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <select className={styles.chartSelect}>
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <select className={styles.chartSelect} style={{ background: '#FFFFFF', borderColor: 'rgba(18, 49, 40, 0.25)', color: '#17231F', fontWeight: 600 }}>
               <option value="">All Status</option>
               <option value="Available">Available</option>
               <option value="Sold">Sold</option>
               <option value="Reserved">Reserved</option>
+              <option value="On Hold">On Hold</option>
             </select>
-            <select className={styles.chartSelect}>
+            <select className={styles.chartSelect} style={{ background: '#FFFFFF', borderColor: 'rgba(18, 49, 40, 0.25)', color: '#17231F', fontWeight: 600 }}>
               <option value="">Sort By</option>
               <option value="newest">Newest First</option>
               <option value="price_desc">Price: High to Low</option>
@@ -51,56 +102,90 @@ export default async function AdminProperties() {
             </select>
           </div>
         </div>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid rgba(212, 175, 55, 0.2)', background: 'rgba(255,255,255,0.02)' }}>
-              <th style={{ padding: '1.25rem 1.5rem', color: 'var(--text-secondary)', width: '40px' }}><input type="checkbox" /></th>
-              <th style={{ padding: '1.25rem 1rem', color: 'var(--text-secondary)' }}>Property Details</th>
-              <th style={{ padding: '1.25rem 1rem', color: 'var(--text-secondary)' }}>Location</th>
-              <th style={{ padding: '1.25rem 1rem', color: 'var(--text-secondary)' }}>Price & Area</th>
-              <th style={{ padding: '1.25rem 1.5rem', color: 'var(--text-secondary)', textAlign: 'right' }}>Status & Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {properties && properties.length > 0 ? properties.map((prop) => (
-              <tr key={prop.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', transition: 'background 0.2s ease' }} className="hover-bg-light">
-                <td style={{ padding: '1.25rem 1.5rem' }}><input type="checkbox" /></td>
-                <td style={{ padding: '1.25rem 1rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div style={{ width: '60px', height: '60px', borderRadius: '8px', background: 'var(--bg-primary)', overflow: 'hidden', backgroundImage: `url(${prop.image_url || '/banner%201.png'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
-                    <div>
-                      <div style={{ fontWeight: 'bold', fontSize: '1rem', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        {prop.title}
-                        {prop.is_featured && <span style={{ background: 'var(--accent-gold)', color: 'black', fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '12px', fontWeight: 'bold' }}>FEATURED</span>}
+
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ borderBottom: '2px solid rgba(18, 49, 40, 0.15)', background: '#EDE7DA' }}>
+                <th style={{ padding: '1rem 1.25rem', color: '#123128', width: '40px' }}><input type="checkbox" /></th>
+                <th style={{ padding: '1rem 1rem', color: '#123128', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Property Details</th>
+                <th style={{ padding: '1rem 1rem', color: '#123128', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Location</th>
+                <th style={{ padding: '1rem 1rem', color: '#123128', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Price & Area</th>
+                <th style={{ padding: '1rem 1.25rem', color: '#123128', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'right' }}>Status & Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {properties && properties.length > 0 ? properties.map((prop) => {
+                const thumb = prop.thumbnail_image || (Array.isArray(prop.images) && prop.images[0]) || '/banner%201.png';
+                return (
+                  <tr key={prop.id} style={{ borderBottom: '1px solid rgba(18, 49, 40, 0.08)', background: '#FFFFFF', transition: 'background 0.15s ease' }}>
+                    <td style={{ padding: '1rem 1.25rem' }}><input type="checkbox" /></td>
+                    <td style={{ padding: '1rem 1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <div style={{ 
+                          width: '64px', 
+                          height: '64px', 
+                          borderRadius: '8px', 
+                          background: '#EDE7DA', 
+                          overflow: 'hidden', 
+                          backgroundImage: `url(${thumb})`, 
+                          backgroundSize: 'cover', 
+                          backgroundPosition: 'center',
+                          border: '1px solid rgba(18,49,40,0.15)',
+                          flexShrink: 0
+                        }}></div>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: '0.98rem', color: '#17231F', marginBottom: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            <span>{prop.title}</span>
+                            {prop.is_featured && (
+                              <span style={{ background: '#FEF3C7', color: '#92400E', border: '1px solid #FDE68A', fontSize: '0.65rem', padding: '0.15rem 0.45rem', borderRadius: '12px', fontWeight: 800 }}>
+                                FEATURED
+                              </span>
+                            )}
+                          </div>
+                          <div style={{ color: '#5D665F', fontSize: '0.82rem', fontWeight: 600 }}>
+                            ID: <span style={{ color: '#17231F' }}>{prop.id.substring(0, 8).toUpperCase()}</span> • {prop.property_type || 'Agricultural'}
+                          </div>
+                        </div>
                       </div>
-                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>ID: {prop.id.substring(0,8).toUpperCase()}</div>
+                    </td>
+                    <td style={{ padding: '1rem 1rem' }}>
+                      <div style={{ fontWeight: 700, color: '#17231F', fontSize: '0.92rem' }}>{prop.village}</div>
+                      <div style={{ color: '#5D665F', fontSize: '0.82rem', fontWeight: 500 }}>{prop.taluka}, {prop.district}</div>
+                    </td>
+                    <td style={{ padding: '1rem 1rem' }}>
+                      <div style={{ fontWeight: 800, color: '#123128', fontSize: '0.98rem' }}>{prop.price_display}</div>
+                      <div style={{ color: '#5D665F', fontSize: '0.82rem', fontWeight: 500 }}>{prop.area_display || `${prop.area_sqm} sqm`}</div>
+                    </td>
+                    <td style={{ padding: '1rem 1.25rem', textAlign: 'right' }}>
+                      <PropertyRowActions property={prop} />
+                    </td>
+                  </tr>
+                );
+              }) : (
+                <tr>
+                  <td colSpan={5} style={{ padding: '4rem 2rem', textAlign: 'center', background: '#FFFFFF' }}>
+                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏗️</div>
+                    <p style={{ fontSize: '1.25rem', color: '#123128', fontWeight: 700, marginBottom: '0.4rem' }}>
+                      No properties found
+                    </p>
+                    <p style={{ color: '#3D4A41', fontSize: '0.95rem' }}>
+                      Add your first premium listing manually or use bulk import.
+                    </p>
+                    <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                      <Link href="/admin/properties/bulk" className="btn-outline" style={{ borderColor: '#123128', color: '#123128', fontWeight: 700 }}>
+                        Bulk Import
+                      </Link>
+                      <Link href="/admin/properties/new" className="btn-primary" style={{ backgroundColor: '#123128', color: '#FFFFFF', fontWeight: 700 }}>
+                        + Add Property
+                      </Link>
                     </div>
-                  </div>
-                </td>
-                <td style={{ padding: '1.25rem 1rem' }}>
-                  <div style={{ fontWeight: '500' }}>{prop.village}</div>
-                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{prop.taluka}, {prop.district}</div>
-                </td>
-                <td style={{ padding: '1.25rem 1rem' }}>
-                  <div style={{ fontWeight: 'bold', color: 'var(--accent-gold)' }}>{prop.price_display}</div>
-                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{prop.area}</div>
-                </td>
-                <td style={{ padding: '1.25rem 1.5rem', textAlign: 'right' }}>
-                  <PropertyRowActions property={prop} />
-                </td>
-              </tr>
-            )) : (
-              <tr>
-                <td colSpan={5} style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                  <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>🏗️</div>
-                  <p style={{ fontSize: '1.2rem', color: 'white', marginBottom: '0.5rem' }}>No properties found</p>
-                  <p>Add your first premium listing to start managing.</p>
-                  <Link href="/admin/properties/new" className="btn-primary" style={{ display: 'inline-block', marginTop: '1.5rem' }}>Add Property</Link>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

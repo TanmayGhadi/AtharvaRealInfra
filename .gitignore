@@ -41,3 +41,12 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+
+# scratch & migration scripts
+scratch_*.js
+apply_migration.js
+check_existing_columns.js
+fix_missing_columns.js
+run_migration.js
+atharva-hero-drone.mp4.mp4
+/Bulk properties.xlsx

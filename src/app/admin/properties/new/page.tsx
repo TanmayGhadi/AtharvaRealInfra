@@ -6,8 +6,6 @@ import styles from '../../admin.module.css';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 
-import { uploadMediaServer } from '../uploadAction';
-
 export default function NewPropertyPage() {
   const [images, setImages] = useState<string[]>([]);
   const [videos, setVideos] = useState<string[]>([]);
@@ -64,10 +62,9 @@ export default function NewPropertyPage() {
       return;
     }
     let area = parseFloat(numMatch[0]);
-    if (lower.includes('guntha')) area = area / 40; // 40 gunthas in an acre
+    if (lower.includes('guntha')) area = area / 40;
     else if (lower.includes('sqm') || lower.includes('sq meter')) area = area / 4046.86;
     else if (lower.includes('sqft') || lower.includes('sq ft')) area = area / 43560;
-    // defaults to acres if 'acre' is in string or if no recognizable unit
     
     if (area > 0) {
       const perAcre = priceNum / area;
@@ -108,11 +105,9 @@ export default function NewPropertyPage() {
 
   const compressImage = (file: File): Promise<File> => {
     return new Promise((resolve, reject) => {
-      // Don't compress if not an image or if it's already small (< 5MB)
       if (!file.type.startsWith('image/') || file.size <= 5 * 1024 * 1024) {
         return resolve(file);
       }
-
       const img = new window.Image();
       const url = URL.createObjectURL(file);
       
@@ -121,8 +116,6 @@ export default function NewPropertyPage() {
         const canvas = document.createElement('canvas');
         let width = img.width;
         let height = img.height;
-        
-        // Max dimensions
         const MAX_WIDTH = 1920;
         const MAX_HEIGHT = 1080;
         
@@ -144,8 +137,6 @@ export default function NewPropertyPage() {
         if (!ctx) return resolve(file);
         
         ctx.drawImage(img, 0, 0, width, height);
-        
-        // Compress to 80% quality JPEG
         canvas.toBlob((blob) => {
           if (blob) {
             const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
@@ -171,13 +162,10 @@ export default function NewPropertyPage() {
     
     for (let i = 0; i < e.target.files.length; i++) {
       let file = e.target.files[i];
-      
-      // Auto-compress large images before uploading
       if (type === 'image') {
         file = await compressImage(file);
       }
       try {
-        // Get signature from API
         const sigRes = await fetch('/api/upload-signature', { method: 'POST' });
         const sigData = await sigRes.json();
         
@@ -185,7 +173,6 @@ export default function NewPropertyPage() {
           throw new Error(sigData.error || 'Failed to get upload signature');
         }
 
-        // Upload directly to Cloudinary
         const cloudinaryData = new FormData();
         cloudinaryData.append('file', file);
         cloudinaryData.append('api_key', sigData.api_key);
@@ -199,7 +186,6 @@ export default function NewPropertyPage() {
         });
         
         const result = await uploadRes.json();
-        
         if (!uploadRes.ok || result.error) {
           throw new Error(result.error?.message || result.error || `HTTP error ${uploadRes.status}`);
         }
@@ -240,10 +226,9 @@ export default function NewPropertyPage() {
       }
       if (result && result.success) {
         setSaveStatus('success');
-        // Let them see success message, then redirect after 2s
         setTimeout(() => {
           window.location.href = '/admin/properties';
-        }, 2000);
+        }, 1500);
       }
     } catch (err: any) {
       console.error(err);
@@ -252,29 +237,51 @@ export default function NewPropertyPage() {
     }
   };
 
+  const inputStyle = {
+    width: '100%',
+    padding: '0.8rem 1rem',
+    background: '#FFFFFF',
+    border: '1px solid rgba(18,49,40,0.25)',
+    color: '#17231F',
+    borderRadius: '6px',
+    fontSize: '0.95rem',
+    fontWeight: 500
+  };
+
+  const labelStyle = {
+    display: 'block',
+    marginBottom: '0.5rem',
+    color: '#123128',
+    fontWeight: 700,
+    fontSize: '0.85rem',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.5px'
+  };
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1>Add New Property</h1>
-        <Link href="/admin/properties" className="btn-outline" style={{ padding: '8px 16px', fontSize: '0.9rem' }}>
+        <h1 style={{ color: '#123128', fontFamily: 'var(--font-serif)', fontSize: '1.8rem', margin: 0 }}>
+          Add New Property
+        </h1>
+        <Link href="/admin/properties" className="btn-outline" style={{ padding: '8px 16px', fontSize: '0.85rem', borderColor: '#123128', color: '#123128', fontWeight: 700 }}>
           Back to Properties
         </Link>
       </div>
 
       {saveStatus === 'success' && (
-        <div style={{ background: 'rgba(74, 222, 128, 0.2)', border: '1px solid #4ade80', color: '#4ade80', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>Property Created Successfully! Redirecting...</span>
+        <div style={{ background: '#DCFCE7', border: '1px solid #86EFAC', color: '#166534', padding: '1rem 1.25rem', borderRadius: '8px', marginBottom: '1.5rem', fontWeight: 700 }}>
+          ✓ Property Created Successfully! Redirecting to property management...
         </div>
       )}
 
       {saveStatus === 'error' && (
-        <div style={{ background: 'rgba(248, 113, 113, 0.2)', border: '1px solid #f87171', color: '#f87171', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ background: '#FEE2E2', border: '1px solid #FCA5A5', color: '#991B1B', padding: '1rem 1.25rem', borderRadius: '8px', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 600 }}>
           <span>Error creating property: {errorMessage}</span>
-          <button type="button" onClick={() => setSaveStatus('idle')} style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer' }}>✕</button>
+          <button type="button" onClick={() => setSaveStatus('idle')} style={{ background: 'none', border: 'none', color: '#991B1B', cursor: 'pointer', fontWeight: 700 }}>✕</button>
         </div>
       )}
 
-      {/* Lightbox Overlay */}
       {previewImage && (
         <div 
           onClick={() => setPreviewImage(null)}
@@ -289,13 +296,13 @@ export default function NewPropertyPage() {
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Property Title</label>
-              <input type="text" name="title" required placeholder="Luxury Farmhouse Estate" style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} />
+              <label style={labelStyle}>Property Title *</label>
+              <input type="text" name="title" required placeholder="Luxury Farmhouse Plot Pinguli" style={inputStyle} />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Property Type</label>
-              <select name="property_type" style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }}>
-                <option value="Agricultural">Agricultural Land</option>
+              <label style={labelStyle}>Property Type *</label>
+              <select name="property_type" style={inputStyle}>
+                <option value="Agricultural Land">Agricultural Land</option>
                 <option value="Farmhouse">Farmhouse Plot</option>
                 <option value="Commercial">Commercial Land</option>
                 <option value="Investment">Investment Plot</option>
@@ -304,89 +311,102 @@ export default function NewPropertyPage() {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Description</label>
-            <textarea name="description" required rows={4} style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }}></textarea>
+            <label style={labelStyle}>Description *</label>
+            <textarea name="description" required rows={4} style={inputStyle} placeholder="Detailed property description, features, road access, and view..."></textarea>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>District</label>
-              <select name="district" required value={district} onChange={e => { setDistrict(e.target.value); setTaluka(''); setVillage(''); }} style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }}>
+              <label style={labelStyle}>District *</label>
+              <select name="district" required value={district} onChange={e => { setDistrict(e.target.value); setTaluka(''); setVillage(''); }} style={inputStyle}>
                 <option value="">Select District</option>
                 {Object.keys(locationHierarchy).map(d => <option key={d} value={d}>{d}</option>)}
+                {!Object.keys(locationHierarchy).length && <option value="Sindhudurg">Sindhudurg</option>}
               </select>
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Taluka</label>
-              <select name="taluka" required value={taluka} onChange={e => { setTaluka(e.target.value); setVillage(''); }} disabled={!district} style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }}>
+              <label style={labelStyle}>Taluka *</label>
+              <select name="taluka" required value={taluka} onChange={e => { setTaluka(e.target.value); setVillage(''); }} style={inputStyle}>
                 <option value="">Select Taluka</option>
                 {availableTalukas.map(t => <option key={t} value={t}>{t}</option>)}
+                {!availableTalukas.length && (
+                  <>
+                    <option value="Kudal">Kudal</option>
+                    <option value="Sawantwadi">Sawantwadi</option>
+                    <option value="Dodamarg">Dodamarg</option>
+                    <option value="Vengurla">Vengurla</option>
+                    <option value="Kankavli">Kankavli</option>
+                    <option value="Malvan">Malvan</option>
+                  </>
+                )}
               </select>
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Village (Optional)</label>
-              <select name="village" value={village} onChange={e => setVillage(e.target.value)} disabled={!taluka} style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }}>
-                <option value="">Select Village</option>
-                {availableVillages.map(v => <option key={v} value={v}>{v}</option>)}
-              </select>
+              <label style={labelStyle}>Village *</label>
+              <input type="text" name="village" required value={village} onChange={e => setVillage(e.target.value)} placeholder="e.g. Pinguli" style={inputStyle} />
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Price (Display)</label>
-              <input type="text" name="price_display" required placeholder="₹ 2.5 Cr" value={priceDisplay} onChange={handlePriceDisplayChange} style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} />
+              <label style={labelStyle}>Price (Display) *</label>
+              <input type="text" name="price_display" required placeholder="₹ 50 Lakh" value={priceDisplay} onChange={handlePriceDisplayChange} style={inputStyle} />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Price (Numeric for sorting)</label>
-              <input type="number" name="price_numeric" required placeholder="25000000" value={priceNumeric} onChange={e => setPriceNumeric(e.target.value)} style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} />
+              <label style={labelStyle}>Price (Numeric) *</label>
+              <input type="number" name="price_numeric" required placeholder="5000000" value={priceNumeric} onChange={e => setPriceNumeric(e.target.value)} style={inputStyle} />
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Area (Display)</label>
-              <input type="text" name="area_display" required placeholder="5 Acres" value={areaDisplay} onChange={handleAreaDisplayChange} style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} />
+              <label style={labelStyle}>Area (Display) *</label>
+              <input type="text" name="area_display" required placeholder="1 Acre" value={areaDisplay} onChange={handleAreaDisplayChange} style={inputStyle} />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Price Per Acre (Auto-Calculated)</label>
-              <input type="text" readOnly placeholder="Calculated automatically" value={pricePerAcre} style={{ width: '100%', padding: '0.8rem', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(212,175,55,0.2)', color: 'var(--accent-gold)', borderRadius: '4px' }} />
+              <label style={labelStyle}>Price Per Acre (Auto)</label>
+              <input type="text" readOnly placeholder="Calculated automatically" value={pricePerAcre} style={{ ...inputStyle, background: '#EDE7DA', color: '#123128', fontWeight: 700 }} />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Status</label>
-              <select name="status" style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }}>
+              <label style={labelStyle}>Status *</label>
+              <select name="status" style={inputStyle}>
                 <option value="Available">Available</option>
                 <option value="Sold">Sold</option>
                 <option value="Reserved">Reserved</option>
+                <option value="On Hold">On Hold</option>
               </select>
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Latitude (Optional for Map)</label>
-              <input type="text" name="latitude" placeholder="e.g. 15.9033" style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} />
+              <label style={labelStyle}>Latitude (Optional)</label>
+              <input type="text" name="latitude" placeholder="e.g. 16.0" style={inputStyle} />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Longitude (Optional for Map)</label>
-              <input type="text" name="longitude" placeholder="e.g. 73.8211" style={{ width: '100%', padding: '0.8rem', background: 'var(--bg-primary)', border: '1px solid rgba(212,175,55,0.2)', color: 'white', borderRadius: '4px' }} />
+              <label style={labelStyle}>Longitude (Optional)</label>
+              <input type="text" name="longitude" placeholder="e.g. 73.5" style={inputStyle} />
             </div>
           </div>
 
           <div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-              <input type="checkbox" name="is_featured" />
-              Feature this property on the homepage
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#123128', cursor: 'pointer', fontWeight: 700 }}>
+              <input type="checkbox" name="is_featured" style={{ width: '18px', height: '18px' }} />
+              Feature this property listing prominently on the homepage
             </label>
           </div>
 
           <input type="hidden" name="videos" value={JSON.stringify(videos)} />
           <input type="hidden" name="documents" value={JSON.stringify(documents)} />
-          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(212,175,55,0.2)', paddingTop: '1.5rem' }}>
-            <h3 style={{ marginBottom: '1rem' }}>Property Images</h3>
+
+          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(18,49,40,0.15)', paddingTop: '1.5rem' }}>
+            <h3 style={{ marginBottom: '0.75rem', color: '#123128', fontSize: '1.1rem' }}>Property Images (Optional)</h3>
+            <p style={{ color: '#5D665F', fontSize: '0.85rem', marginBottom: '1rem' }}>
+              Upload high resolution cover photos and gallery images. Images can also be added or edited later.
+            </p>
             <div style={{ marginBottom: '1rem' }}>
-              <input type="file" multiple accept="image/*" onChange={(e) => handleFileUpload(e, 'image')} disabled={uploading} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }} />
-              {uploading && <span style={{ marginLeft: '1rem', color: 'var(--accent-gold)' }}>Uploading to Cloudinary...</span>}
+              <input type="file" multiple accept="image/*" onChange={(e) => handleFileUpload(e, 'image')} disabled={uploading} style={{ padding: '0.5rem', background: '#EDE7DA', borderRadius: '6px', border: '1px solid rgba(18,49,40,0.2)' }} />
+              {uploading && <span style={{ marginLeft: '1rem', color: '#123128', fontWeight: 700 }}>Uploading media...</span>}
             </div>
             
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -394,43 +414,32 @@ export default function NewPropertyPage() {
                 <div 
                   key={i} 
                   onClick={() => setPreviewImage(img)}
-                  style={{ width: '100px', height: '100px', backgroundImage: `url(${img})`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '8px', border: '2px solid var(--accent-gold)', cursor: 'pointer', transition: 'transform 0.2s' }}
-                  onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
-                  onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
+                  style={{ width: '110px', height: '110px', backgroundImage: `url(${img})`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '8px', border: '2px solid #C9A24E', cursor: 'pointer' }}
                 ></div>
               ))}
             </div>
           </div>
 
-          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(212,175,55,0.2)', paddingTop: '1.5rem' }}>
-            <h3 style={{ marginBottom: '1rem' }}>Property Videos</h3>
+          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(18,49,40,0.15)', paddingTop: '1.5rem' }}>
+            <h3 style={{ marginBottom: '0.75rem', color: '#123128', fontSize: '1.1rem' }}>Property Videos (Optional)</h3>
             <div style={{ marginBottom: '1rem' }}>
-              <input type="file" multiple accept="video/*" onChange={(e) => handleFileUpload(e, 'video')} disabled={uploading} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }} />
+              <input type="file" multiple accept="video/*" onChange={(e) => handleFileUpload(e, 'video')} disabled={uploading} style={{ padding: '0.5rem', background: '#EDE7DA', borderRadius: '6px', border: '1px solid rgba(18,49,40,0.2)' }} />
             </div>
-            
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               {videos.map((vid, i) => (
-                <video key={i} src={vid} style={{ width: '150px', height: '100px', objectFit: 'cover', borderRadius: '8px', border: '2px solid var(--accent-gold)' }} controls />
+                <video key={i} src={vid} style={{ width: '160px', height: '110px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #C9A24E' }} controls />
               ))}
             </div>
           </div>
 
-          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(212,175,55,0.2)', paddingTop: '1.5rem' }}>
-            <h3 style={{ marginBottom: '1rem' }}>Property Documents (PDFs, etc)</h3>
-            <div style={{ marginBottom: '1rem' }}>
-              <input type="file" multiple accept=".pdf,.doc,.docx" onChange={(e) => handleFileUpload(e, 'document')} disabled={uploading} style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }} />
-            </div>
-            
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              {documents.map((doc, i) => (
-                <a key={i} href={doc} target="_blank" rel="noopener noreferrer" style={{ padding: '0.5rem', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', color: 'var(--accent-gold)' }}>Document {i + 1}</a>
-              ))}
-            </div>
+          <div style={{ marginTop: '1.5rem', borderTop: '1px solid rgba(18,49,40,0.15)', paddingTop: '1.5rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+            <Link href="/admin/properties" className="btn-outline" style={{ padding: '12px 24px', borderColor: '#123128', color: '#123128', fontWeight: 700 }}>
+              Cancel
+            </Link>
+            <button type="submit" className="btn-primary" style={{ padding: '12px 32px', fontSize: '1rem', backgroundColor: '#123128', color: '#FFFFFF', fontWeight: 700 }} disabled={uploading || saveStatus === 'saving'}>
+              {uploading ? 'Uploading Media...' : saveStatus === 'saving' ? 'Creating Property...' : 'Publish Property Listing'}
+            </button>
           </div>
-
-          <button type="submit" className="btn-primary" style={{ marginTop: '1rem' }} disabled={uploading || saveStatus === 'saving'}>
-            {uploading ? 'Uploading...' : saveStatus === 'saving' ? 'Creating...' : 'Publish Property'}
-          </button>
         </form>
       </div>
     </div>

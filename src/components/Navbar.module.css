@@ -51,14 +51,15 @@
 }
 
 .navLinks a {
-  color: rgba(247, 244, 236, 0.85);
-  font-size: 0.82rem;
+  color: #F7F4EC;
+  font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1.5px;
   position: relative;
   padding-block: 0.5rem;
   transition: color 0.25s ease;
+  opacity: 1;
 }
 
 .navLinks a:hover,
@@ -84,8 +85,8 @@
 }
 
 .dropdown > span {
-  color: rgba(247, 244, 236, 0.85);
-  font-size: 0.82rem;
+  color: #F7F4EC;
+  font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1.5px;
@@ -93,6 +94,7 @@
   display: flex;
   align-items: center;
   gap: 0.35rem;
+  opacity: 1;
 }
 
 .dropdown:hover > span {

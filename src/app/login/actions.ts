@@ -7,7 +7,7 @@ export async function loginAction(formData: FormData) {
   const password = formData.get('password') as string;
 
   // Password auth for admin portal
-  const validPassword = process.env.ADMIN_PASSWORD || 'atharva12';
+  const validPassword = process.env.ADMIN_PASSWORD || 'atharva@12';
   if (password === validPassword) {
     (await cookies()).set('admin_authenticated', 'true', {
       httpOnly: true,

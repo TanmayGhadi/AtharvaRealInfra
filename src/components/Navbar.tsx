@@ -35,6 +35,7 @@ export default function Navbar() {
   }, [mobileMenuOpen]);
 
   const isActive = (path: string) => pathname === path;
+  const isAdmin = pathname?.startsWith('/admin');
 
   return (
     <>
@@ -45,7 +46,7 @@ export default function Navbar() {
           aria-hidden="true"
         />
       )}
-      <header className={`${styles.navbar} ${scrolled ? styles.scrolled : ""}`}>
+      <header className={`${styles.navbar} ${scrolled || isAdmin ? styles.scrolled : ""}`}>
         <div className={styles.navContainer}>
           <Link href="/" className={styles.logo}>
             <Image src="/logo.jpg" alt="Atharva Real Infra Logo" width={42} height={42} className={styles.logoImage} />

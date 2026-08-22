@@ -16,17 +16,6 @@ export default async function AdminDashboard() {
   const availableProperties = allProperties.filter(p => p.status === 'Available').length;
 
   const featuredProperties = allProperties.filter(p => p.is_featured).length;
-  
-  // Calculate total revenue from sold properties
-  const totalRevenue = allProperties
-    .filter(p => p.status === 'Sold')
-    .reduce((acc, curr) => acc + (curr.price_numeric || 0), 0);
-
-  const formatCurrency = (val: number) => {
-    if (val >= 10000000) return `₹ ${(val / 10000000).toFixed(2)} Cr`;
-    if (val >= 100000) return `₹ ${(val / 100000).toFixed(2)} Lacs`;
-    return `₹ ${val.toLocaleString('en-IN')}`;
-  };
 
   // Fetch Leads
   const { data: leads } = await adminSupabase
@@ -47,9 +36,13 @@ export default async function AdminDashboard() {
       <div className={styles.pageHeader}>
         <div>
           <h1>Dashboard Overview</h1>
-          <p className="text-secondary" style={{ marginTop: '0.5rem' }}>Welcome back to your premium property management system.</p>
+          <p style={{ marginTop: '0.4rem', color: '#3D4A41', fontSize: '0.95rem', fontWeight: 500 }}>
+            Welcome back to your Atharva Real Infra admin workspace.
+          </p>
         </div>
-        <button className="btn-primary">Download Report</button>
+        <a href="/admin/properties/bulk" className="btn-primary" style={{ padding: '10px 20px', fontSize: '0.85rem', fontWeight: 700, backgroundColor: '#123128', color: '#FFFFFF', textDecoration: 'none' }}>
+          📊 Bulk Import Properties
+        </a>
       </div>
 
       <div className={styles.statsGrid}>
@@ -58,7 +51,7 @@ export default async function AdminDashboard() {
           <div className={styles.statContent}>
             <h3>Total Properties</h3>
             <div className={styles.statValue}>{totalProperties}</div>
-            <div className={styles.statChange + " " + styles.positive}>{availableProperties} Active Listings</div>
+            <div className={styles.statChange}>{availableProperties} Active Listings</div>
           </div>
         </div>
         <div className={styles.statCard}>
@@ -66,15 +59,15 @@ export default async function AdminDashboard() {
           <div className={styles.statContent}>
             <h3>Featured</h3>
             <div className={styles.statValue}>{featuredProperties}</div>
-            <div className={styles.statChange + " " + styles.positive}>Premium placements</div>
+            <div className={styles.statChange}>Premium Placements</div>
           </div>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statIcon}>🤝</div>
           <div className={styles.statContent}>
-            <h3>Sold/Reserved</h3>
+            <h3>Sold / Reserved</h3>
             <div className={styles.statValue}>{soldProperties + reservedProperties}</div>
-            <div className={styles.statChange + " " + styles.positive}>{soldProperties} Sold | {reservedProperties} Reserved</div>
+            <div className={styles.statChange}>{soldProperties} Sold | {reservedProperties} Reserved</div>
           </div>
         </div>
         <div className={styles.statCard}>
@@ -82,61 +75,62 @@ export default async function AdminDashboard() {
           <div className={styles.statContent}>
             <h3>Total Leads</h3>
             <div className={styles.statValue}>{totalLeads || 0}</div>
-            <div className={styles.statChange + " " + styles.positive}>From website inquiries</div>
+            <div className={styles.statChange}>Website Inquiries</div>
           </div>
         </div>
       </div>
 
       <div className={styles.dashboardGrid}>
-        <div className={styles.mainColumn}>
+        <div>
           <div className={styles.chartCard} style={{ marginBottom: '1.5rem' }}>
             <div className={styles.cardHeader}>
-              <h3>Lead Analytics</h3>
+              <h3>System Overview</h3>
               <select className={styles.chartSelect}>
                 <option>This Month</option>
                 <option>Last Month</option>
                 <option>This Year</option>
               </select>
             </div>
-            <div className={styles.chartPlaceholder}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-gold)'}}>
-                <span style={{ fontSize: '2rem', marginBottom: '1rem' }}>📊</span>
-                System Active & Monitoring Leads
-              </div>
+            <div style={{ padding: '3rem 2rem', textAlign: 'center', background: '#F5F1E8', borderRadius: '8px', border: '1px solid rgba(18,49,40,0.12)' }}>
+              <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '0.5rem' }}>📊</span>
+              <div style={{ fontSize: '1.1rem', color: '#123128', fontWeight: 700 }}>Database & Analytics Active</div>
+              <p style={{ color: '#5D665F', fontSize: '0.9rem', margin: '0.4rem 0 0 0' }}>
+                {totalProperties} Total Listed Properties • {totalLeads || 0} Customer Leads
+              </p>
             </div>
           </div>
           
           <div className={styles.chartCard}>
             <div className={styles.cardHeader}>
-              <h3>Location Statistics</h3>
-              <a href="/admin/locations" className={styles.cardLink}>Manage Locations</a>
+              <h3>Location Coverage</h3>
+              <a href="/admin/locations" className={styles.cardLink}>Manage Locations →</a>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
-              <div style={{ padding: '1.5rem', background: 'var(--bg-primary)', borderRadius: '8px', border: '1px solid var(--border-color)', textAlign: 'center' }}>
-                <div style={{ fontSize: '2rem', color: 'var(--accent-gold)', fontWeight: 'bold' }}>{totalDistricts || 0}</div>
-                <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase', marginTop: '0.5rem' }}>Districts</div>
+              <div style={{ padding: '1.5rem', background: '#F5F1E8', borderRadius: '8px', border: '1px solid rgba(18,49,40,0.15)', textAlign: 'center' }}>
+                <div style={{ fontSize: '2.2rem', color: '#123128', fontWeight: 800 }}>{totalDistricts || 0}</div>
+                <div style={{ color: '#5D665F', fontSize: '0.85rem', textTransform: 'uppercase', marginTop: '0.3rem', fontWeight: 700 }}>Active Districts</div>
               </div>
-              <div style={{ padding: '1.5rem', background: 'var(--bg-primary)', borderRadius: '8px', border: '1px solid var(--border-color)', textAlign: 'center' }}>
-                <div style={{ fontSize: '2rem', color: 'var(--accent-gold)', fontWeight: 'bold' }}>{totalTalukas || 0}</div>
-                <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase', marginTop: '0.5rem' }}>Talukas</div>
+              <div style={{ padding: '1.5rem', background: '#F5F1E8', borderRadius: '8px', border: '1px solid rgba(18,49,40,0.15)', textAlign: 'center' }}>
+                <div style={{ fontSize: '2.2rem', color: '#123128', fontWeight: 800 }}>{totalTalukas || 0}</div>
+                <div style={{ color: '#5D665F', fontSize: '0.85rem', textTransform: 'uppercase', marginTop: '0.3rem', fontWeight: 700 }}>Active Talukas</div>
               </div>
             </div>
           </div>
         </div>
         
-        <div className={styles.sideColumn}>
+        <div>
           <div className={styles.recentActivity}>
             <div className={styles.cardHeader}>
               <h3>Recent Inquiries</h3>
-              <a href="/admin/leads" className={styles.cardLink}>View All</a>
+              <a href="/admin/leads" className={styles.cardLink}>View All →</a>
             </div>
             <ul className={styles.activityList}>
               {recentLeads.length > 0 ? recentLeads.slice(0, 6).map((lead: any) => (
                 <li key={lead.id}>
-                  <div className={styles.activityAvatar}>{lead.name.charAt(0).toUpperCase()}</div>
+                  <div className={styles.activityAvatar}>{(lead.name || 'L').charAt(0).toUpperCase()}</div>
                   <div className={styles.activityDetails}>
                     <h4>{lead.name}</h4>
-                    <p>{lead.phone} • {lead.message?.substring(0, 30)}...</p>
+                    <p style={{ color: '#4A5568' }}>{lead.phone} • {lead.message?.substring(0, 25)}...</p>
                     <span>{new Date(lead.created_at).toLocaleDateString()}</span>
                   </div>
                   <span className={`${styles.statusBadge} ${lead.status === 'New' ? styles.hot : ''}`}>
@@ -144,7 +138,7 @@ export default async function AdminDashboard() {
                   </span>
                 </li>
               )) : (
-                <li style={{ padding: '1rem', color: 'var(--text-secondary)' }}>No leads generated yet.</li>
+                <li style={{ padding: '1rem', color: '#5D665F', textAlign: 'center' }}>No recent leads found.</li>
               )}
             </ul>
           </div>
