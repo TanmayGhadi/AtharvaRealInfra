@@ -12,6 +12,9 @@ export default function SettingsForm({ initialData }: { initialData: any }) {
     try {
       await updateSettings(formData);
       setStatus('success');
+      if (typeof window !== 'undefined' && (window as any).showAdminToast) {
+        (window as any).showAdminToast('Changes Done! ✨', 'Global website settings saved successfully.', 'saved');
+      }
       setTimeout(() => setStatus('idle'), 3000);
     } catch (err) {
       console.error(err);

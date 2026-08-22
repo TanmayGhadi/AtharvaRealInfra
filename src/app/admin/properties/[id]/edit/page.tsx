@@ -351,6 +351,9 @@ export default function EditPropertyPage({ params }: { params: any }) {
       }
       
       setSaveStatus('success');
+      if (typeof window !== 'undefined' && (window as any).showAdminToast) {
+        (window as any).showAdminToast('Changes Done! ✨', 'Property details and media updated successfully.', 'saved');
+      }
       setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (err: any) {
       console.error(err);

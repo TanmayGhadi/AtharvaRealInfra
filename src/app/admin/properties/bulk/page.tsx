@@ -318,6 +318,13 @@ export default function BulkPropertyImportPage() {
 
     setIsImporting(false);
     setCurrentStep(5);
+    if (typeof window !== 'undefined' && (window as any).showAdminToast) {
+      (window as any).showAdminToast(
+        'Properties Successfully Uploaded! 📊', 
+        `Successfully imported ${successAccumulator} properties into your database!`, 
+        'uploaded'
+      );
+    }
   };
 
   return (

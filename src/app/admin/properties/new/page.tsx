@@ -227,8 +227,8 @@ export default function NewPropertyPage() {
       if (result && result.success) {
         setSaveStatus('success');
         setTimeout(() => {
-          window.location.href = '/admin/properties';
-        }, 1500);
+          window.location.href = '/admin/properties?toast=uploaded';
+        }, 1200);
       }
     } catch (err: any) {
       console.error(err);

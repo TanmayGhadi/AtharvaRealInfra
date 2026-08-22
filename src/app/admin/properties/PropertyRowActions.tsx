@@ -15,6 +15,9 @@ export default function PropertyRowActions({ property }: { property: any }) {
     setIsDeleting(true);
     try {
       await deleteProperty(property.id);
+      if (typeof window !== 'undefined' && (window as any).showAdminToast) {
+        (window as any).showAdminToast('Changes Done! ✨', `Deleted listing "${property.title}".`, 'saved');
+      }
       router.refresh();
     } catch (err) {
       alert('Failed to delete property.');
@@ -28,6 +31,9 @@ export default function PropertyRowActions({ property }: { property: any }) {
     setIsUpdating(true);
     try {
       await updatePropertyStatus(property.id, newStatus);
+      if (typeof window !== 'undefined' && (window as any).showAdminToast) {
+        (window as any).showAdminToast('Changes Done! ✨', `Property status updated to "${newStatus}".`, 'saved');
+      }
       router.refresh();
     } catch (err) {
       alert('Failed to update status.');

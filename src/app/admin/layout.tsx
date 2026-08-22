@@ -1,7 +1,9 @@
+import { Suspense } from "react";
 import Image from "next/image";
 import styles from "./admin.module.css";
 import LogoutButton from "./LogoutButton";
 import AdminSidebarNav from "./AdminSidebarNav";
+import AdminToastManager from "./AdminToastManager";
 
 export default function AdminLayout({
   children,
@@ -10,6 +12,10 @@ export default function AdminLayout({
 }) {
   return (
     <div className={styles.adminLayout}>
+      <Suspense fallback={null}>
+        <AdminToastManager />
+      </Suspense>
+
       {/* Admin Sidebar */}
       <aside className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
