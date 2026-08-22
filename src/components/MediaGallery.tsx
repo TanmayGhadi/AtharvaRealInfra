@@ -13,9 +13,9 @@ export default function MediaGallery({ images }: { images: string[] }) {
   } catch(e) {}
   if (!Array.isArray(parsedImages)) parsedImages = [];
 
-  const displayImages = parsedImages.length > 0 
-    ? parsedImages 
-    : ['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80'];
+  const displayImages = (parsedImages.length > 0 && parsedImages.some((img: any) => typeof img === 'string' && img.trim())) 
+    ? parsedImages.filter((img: any) => typeof img === 'string' && img.trim()) 
+    : ['/no-image.png'];
 
   const nextImage = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -42,7 +42,7 @@ export default function MediaGallery({ images }: { images: string[] }) {
             backgroundColor: '#0C241C',
             boxShadow: '0 12px 35px rgba(18, 49, 40, 0.15)',
             border: '1px solid rgba(18, 49, 40, 0.15)',
-            backgroundImage: `url(${displayImages[currentIndex]})`,
+            backgroundImage: `url(${displayImages[currentIndex]}), url(/no-image.png)`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             cursor: 'pointer'

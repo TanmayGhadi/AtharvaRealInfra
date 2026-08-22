@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const description = prop.seo_description || `Explore this premium ${prop.property_type.toLowerCase()} located in ${prop.village || prop.taluka}, ${prop.district}. ${prop.area_display} for ${prop.price_display}. Contact Atharva Real Infra for investment opportunities in Maharashtra.`;
   const keywords = prop.seo_keywords || `Property in ${prop.district}, ${prop.property_type} in ${prop.taluka}, Land for Sale in Maharashtra, Real Estate in ${prop.village || prop.taluka}`;
   
-  const ogImage = prop.thumbnail_image || (prop.images && prop.images[0]) || '/images/og-default.jpg';
+  const ogImage = prop.thumbnail_image || (prop.images && prop.images[0]) || '/no-image.png';
   const url = `https://atharvarealinfra.com/properties/${prop.slug || prop.id}`;
 
   return {
@@ -118,7 +118,7 @@ export default async function PropertyDetails({ params }: { params: Promise<{ id
     "name": prop.seo_title || prop.title,
     "description": prop.seo_description || prop.description,
     "url": `https://atharvarealinfra.com/properties/${prop.slug || prop.id}`,
-    "image": prop.thumbnail_image || (prop.images && prop.images.length > 0 ? prop.images[0] : undefined),
+    "image": prop.thumbnail_image || (prop.images && prop.images.length > 0 ? prop.images[0] : '/no-image.png'),
     "datePosted": prop.created_at,
     "offers": {
       "@type": "Offer",

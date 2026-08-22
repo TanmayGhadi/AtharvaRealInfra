@@ -116,7 +116,7 @@ export default async function AdminProperties() {
             </thead>
             <tbody>
               {properties && properties.length > 0 ? properties.map((prop) => {
-                const thumb = prop.thumbnail_image || (Array.isArray(prop.images) && prop.images[0]) || '/banner%201.png';
+                const thumb = prop.thumbnail_image || (Array.isArray(prop.images) && prop.images[0]) || '/no-image.png';
                 return (
                   <tr key={prop.id} style={{ borderBottom: '1px solid rgba(18, 49, 40, 0.08)', background: '#FFFFFF', transition: 'background 0.15s ease' }}>
                     <td style={{ padding: '1rem 1.25rem' }}><input type="checkbox" /></td>
@@ -128,7 +128,7 @@ export default async function AdminProperties() {
                           borderRadius: '8px', 
                           background: '#EDE7DA', 
                           overflow: 'hidden', 
-                          backgroundImage: `url(${thumb})`, 
+                          backgroundImage: `url(${thumb}), url(/no-image.png)`, 
                           backgroundSize: 'cover', 
                           backgroundPosition: 'center',
                           border: '1px solid rgba(18,49,40,0.15)',

@@ -38,9 +38,9 @@ export default function PropertyCard({ prop, index = 0, styleClass = '' }: { pro
   } catch(e) {}
   if (!Array.isArray(parsedImages)) parsedImages = [];
 
-  const displayImages = parsedImages.length > 0 
-    ? parsedImages 
-    : ['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80'];
+  const displayImages = (parsedImages.length > 0 && parsedImages.some((img: any) => typeof img === 'string' && img.trim())) 
+    ? parsedImages.filter((img: any) => typeof img === 'string' && img.trim()) 
+    : ['/no-image.png'];
 
   const handleTouchStart = (e: React.TouchEvent) => setTouchStart(e.targetTouches[0].clientX);
   const handleTouchMove = (e: React.TouchEvent) => setTouchEnd(e.targetTouches[0].clientX);
@@ -96,7 +96,7 @@ export default function PropertyCard({ prop, index = 0, styleClass = '' }: { pro
                 style={{ 
                   width: `${100 / displayImages.length}%`, 
                   height: '100%', 
-                  backgroundImage: `url(${img})`, 
+                  backgroundImage: `url(${img}), url(/no-image.png)`, 
                   backgroundSize: 'cover', 
                   backgroundPosition: 'center',
                   flexShrink: 0
